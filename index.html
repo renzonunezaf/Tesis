@@ -6,769 +6,383 @@
 <title>Enara Health — Patient Retention Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --primary: #389FBA;
-  --primary-dark: #1A667A;
-  --secondary: #AF77BE;
-  --secondary-active: #AB61BE;
-  --accent: #FF7B00;
-  --text: #1E1E1E;
-  --text-muted: #6B6B6B;
-  --bg: #F5F5F5;
-  --bg-mint: #ECF6F6;
-  --card: #FFFFFF;
-  --border: #E5E5E5;
-  --mint: #30FFC1;
-  --yellow: #FFE24C;
-  --light-blue: #7BDBFF;
-  --danger: #E53935;
-  --danger-bg: #FFF0F0;
-  --warning-bg: #FFF8E1;
-  --success-bg: #E8F5E9;
-  --sidebar-w: 240px;
-}
+:root{--primary:#389FBA;--primary-dark:#1A667A;--primary-darker:#133E4D;--secondary:#AF77BE;--accent:#FF7B00;--text:#1E1E1E;--text-s:#555;--text-m:#6B6B6B;--text-l:#999;--bg:#F3F4F6;--bg-mint:#ECF6F6;--card:#fff;--border:#E5E7EB;--border-l:#F0F0F0;--danger:#DC2626;--danger-l:#FEF2F2;--warning:#D97706;--warning-l:#FFFBEB;--success:#059669;--success-l:#ECFDF5;--sidebar-w:232px;--radius:10px;--rs:6px;--shadow:0 1px 3px rgba(0,0,0,.08);--tr:.15s ease}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+::selection{background:var(--primary);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+.sidebar{width:var(--sidebar-w);background:var(--primary-darker);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20;overflow-y:auto}
+.sb-brand{padding:20px 20px 8px;font-size:1.35rem;font-weight:600;letter-spacing:-.5px}.sb-brand span{color:#7BDBFF}
+.sb-app{font-size:.6rem;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-sec{padding:14px 14px 4px;font-size:.58rem;font-weight:600;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:1.5px}
+.sb-nav a{display:flex;align-items:center;gap:10px;padding:8px 16px;margin:1px 8px;color:rgba(255,255,255,.5);text-decoration:none;font-size:.82rem;border-radius:var(--rs);transition:var(--tr)}
+.sb-nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.sb-nav a.active{color:#fff;background:rgba(255,255,255,.1);font-weight:500}
+.sb-nav .ic{width:18px;text-align:center;font-size:.95rem}
+.sb-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:100px}
+.sb-footer{margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);font-size:.63rem;color:rgba(255,255,255,.2);line-height:1.5}
 
-body {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 300;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  min-height: 100vh;
-}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.tb-l{display:flex;align-items:center;gap:18px}
+.tb-l h1{font-size:1.05rem;font-weight:600}
+.tb-meta{display:flex;gap:14px}.tb-meta-i{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text-m)}
+.dot-live{width:5px;height:5px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-r{display:flex;align-items:center;gap:10px}
+.vtabs{display:flex;border:1px solid var(--border);border-radius:var(--rs);overflow:hidden}
+.vtab{padding:5px 14px;font-size:.73rem;font-weight:500;background:var(--card);color:var(--text-m);cursor:pointer;border:none;font-family:inherit;transition:var(--tr)}
+.vtab:not(:last-child){border-right:1px solid var(--border)}
+.vtab:hover{background:var(--bg)}.vtab.active{background:var(--primary);color:#fff}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--secondary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600}
+.content{padding:20px 28px 40px;flex:1}
+.view{display:none}.view.active{display:block}
 
-/* SIDEBAR */
-.sidebar {
-  width: var(--sidebar-w);
-  background: var(--primary-dark);
-  color: #fff;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  z-index: 10;
-}
-.sidebar-brand {
-  padding: 24px 24px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.sidebar-brand .logo {
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  color: #fff;
-}
-.sidebar-brand .logo span { color: var(--light-blue); }
-.sidebar-brand .app-name {
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: rgba(255,255,255,0.5);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-top: 4px;
-}
-.sidebar-nav {
-  flex: 1;
-  padding: 16px 0;
-}
-.sidebar-nav a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 24px;
-  color: rgba(255,255,255,0.6);
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 400;
-  transition: all 0.15s;
-  border-left: 3px solid transparent;
-}
-.sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
-.sidebar-nav a.active {
-  color: #fff;
-  background: rgba(255,255,255,0.08);
-  border-left-color: var(--light-blue);
-  font-weight: 500;
-}
-.sidebar-nav .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
-.sidebar-footer {
-  padding: 16px 24px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.35);
-}
+.kpi-row{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:var(--tr);position:relative;cursor:default}
+.kpi:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.kpi-lb{font-size:.63rem;font-weight:600;color:var(--text-m);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-v{font-size:1.35rem;font-weight:700;line-height:1}
+.kpi-d{font-size:.66rem;font-weight:500;margin-top:4px}
+.kpi-up{color:var(--success)}.kpi-dn{color:var(--danger)}.kpi-n{color:var(--text-m)}
+.kpi.hero{background:var(--primary-dark);color:#fff;border-color:var(--primary-dark)}.kpi.hero .kpi-lb{color:rgba(255,255,255,.55)}.kpi.hero .kpi-d{color:rgba(255,255,255,.6)}
+.kpi-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:.7rem;padding:5px 11px;border-radius:var(--rs);white-space:nowrap;z-index:50;pointer-events:none}
+.kpi-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
+.kpi:hover .kpi-tip{display:block}
 
-/* MAIN */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
-  min-height: 100vh;
-}
+.fbar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.fbar input[type=text]{border:1px solid var(--border);border-radius:var(--rs);padding:5px 11px;font-size:.78rem;font-family:inherit;width:190px;outline:none;transition:var(--tr)}
+.fbar input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(56,159,186,.12)}
+.fsel{border:1px solid var(--border);border-radius:var(--rs);padding:4px 24px 4px 9px;font-size:.73rem;font-family:inherit;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236B6B6B'/%3E%3C/svg%3E") no-repeat right 8px center;color:var(--text);cursor:pointer;outline:none;-webkit-appearance:none;transition:var(--tr)}
+.fsel:focus{border-color:var(--primary)}
+.fbtn{border:1px solid var(--border);border-radius:var(--rs);padding:4px 11px;font-size:.73rem;font-family:inherit;background:var(--card);color:var(--text-m);cursor:pointer;transition:var(--tr)}
+.fbtn:hover{background:var(--bg);color:var(--text)}
+.fcnt{font-size:.73rem;color:var(--text-m);margin-left:auto}
 
-/* TOP BAR */
-.topbar {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-.topbar h1 {
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.topbar-date {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
-.avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--secondary);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
+.tw{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 11px;font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-m);background:var(--bg);border-bottom:1px solid var(--border);text-align:left;cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover{color:var(--primary)}
+thead th .sa{font-size:.5rem;margin-left:2px;opacity:.3}
+thead th.sorted .sa{opacity:1;color:var(--primary)}
+tbody tr{border-bottom:1px solid var(--border-l);cursor:pointer;transition:background var(--tr)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg-mint)}
+tbody tr.sel{background:#DBEEF5;outline:2px solid var(--primary);outline-offset:-2px}
+td{padding:9px 11px;font-size:.8rem;vertical-align:middle}
 
-/* CONTENT */
-.content { padding: 28px 32px; }
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:100px;font-size:.68rem;font-weight:600;white-space:nowrap}
+.b-crit{background:#FEE2E2;color:#991B1B}.b-high{background:#FEF3C7;color:#92400E}.b-med{background:#FEF9C3;color:#854D0E}.b-low{background:var(--success-l);color:#065F46}
+.s-pend{background:#F3F4F6;color:#6B7280}.s-cont{background:#DBEAFE;color:#1D4ED8}.s-fu{background:#EDE9FE;color:#6D28D9}.s-done{background:var(--success-l);color:var(--success)}
+.rbar{width:55px;height:4px;background:#eee;border-radius:2px;display:inline-block;vertical-align:middle;margin-left:5px}
+.rfill{height:100%;border-radius:2px}
+.chip{display:inline-block;padding:2px 7px;border-radius:3px;font-size:.66rem;font-weight:500;margin:1px;white-space:nowrap}
+.c-n{background:#FDECEC;color:#9B1C1C}.c-p{background:#DEF7EC;color:#03543F}
+.abtn{padding:3px 9px;border-radius:var(--rs);font-size:.7rem;font-weight:500;border:1px solid var(--primary);background:transparent;color:var(--primary);cursor:pointer;font-family:inherit;transition:var(--tr);white-space:nowrap}
+.abtn:hover{background:var(--primary);color:#fff}
+.pav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0}
 
-/* KPI GRID */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
-}
-.kpi-card {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 22px 24px;
-  border: 1px solid var(--border);
-}
-.kpi-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 8px;
-}
-.kpi-value {
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1;
-}
-.kpi-change {
-  font-size: 0.78rem;
-  font-weight: 500;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.kpi-up { color: #2e7d32; }
-.kpi-down { color: var(--danger); }
-.kpi-card.highlight {
-  background: var(--primary-dark);
-  color: #fff;
-  border-color: var(--primary-dark);
-}
-.kpi-card.highlight .kpi-label { color: rgba(255,255,255,0.6); }
-.kpi-card.highlight .kpi-change { color: var(--mint); }
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pnl{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.pnl h3{font-size:.88rem;font-weight:600;margin-bottom:3px}
+.pnl-sub{font-size:.7rem;color:var(--text-m);margin-bottom:14px}
 
-/* SECTION */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.section-header h2 {
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-.badge-count {
-  background: var(--danger);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 2px 10px;
-  border-radius: 100px;
-  margin-left: 10px;
-}
-.filter-pills {
-  display: flex;
-  gap: 8px;
-}
-.pill {
-  padding: 6px 14px;
-  border-radius: 100px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.pill:hover { border-color: var(--primary); color: var(--primary); }
-.pill.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-}
+.sh-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border-l);font-size:.78rem}
+.sh-row:last-child{border-bottom:none}
+.sh-lb{width:175px;flex-shrink:0;font-size:.76rem;color:var(--text-s)}
+.sh-trk{flex:1;height:7px;background:#f0f0f0;border-radius:4px;position:relative}
+.sh-mid{position:absolute;left:50%;top:-1px;bottom:-1px;width:1px;background:#ccc}
+.sh-val{position:absolute;top:0;height:100%;border-radius:4px}
+.sh-neg{right:50%;background:rgba(220,38,38,.5);border-radius:4px 0 0 4px}
+.sh-pos{left:50%;background:rgba(5,150,105,.5);border-radius:0 4px 4px 0}
+.sh-n{width:38px;text-align:right;font-size:.7rem;font-weight:600;flex-shrink:0}
+.sh-n.neg{color:var(--danger)}.sh-n.pos{color:var(--success)}
+.sh-sum{background:var(--bg-mint);border:1px solid #D1E7E7;border-radius:var(--rs);padding:11px 14px;margin-bottom:14px;font-size:.8rem;color:var(--text-s);line-height:1.55}
+.sh-note{font-size:.68rem;color:var(--text-l);font-style:italic;margin-top:10px;padding-top:9px;border-top:1px solid var(--border-l)}
 
-/* PATIENT TABLE */
-.patient-table {
-  background: var(--card);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  overflow: hidden;
-  margin-bottom: 28px;
-}
-.pt-header {
-  display: grid;
-  grid-template-columns: 44px 1.5fr 0.8fr 0.7fr 1.5fr 100px;
-  padding: 12px 20px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  gap: 12px;
-  align-items: center;
-}
-.pt-row {
-  display: grid;
-  grid-template-columns: 44px 1.5fr 0.8fr 0.7fr 1.5fr 100px;
-  padding: 14px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  font-size: 0.88rem;
-  gap: 12px;
-  align-items: center;
-  transition: background 0.1s;
-}
-.pt-row:hover { background: var(--bg-mint); }
-.pt-row:last-child { border-bottom: none; }
+.dr{display:flex;align-items:center;gap:9px;margin-bottom:7px}.dr-lb{width:65px;font-size:.76rem;font-weight:600}.dr-trk{flex:1;height:20px;background:#f0f0f0;border-radius:var(--rs);overflow:hidden}.dr-fl{height:100%;border-radius:var(--rs);display:flex;align-items:center;padding:0 9px;font-size:.66rem;font-weight:700;color:#fff;min-width:28px;transition:width .5s}.dr-n{width:34px;text-align:right;font-size:.8rem;font-weight:600}
 
-/* Risk badge */
-.risk-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.risk-high { background: var(--danger-bg); color: var(--danger); }
-.risk-medium { background: var(--warning-bg); color: #e65100; }
-.risk-low { background: var(--success-bg); color: #2e7d32; }
+.tc{height:110px;background:var(--bg);border-radius:var(--rs);display:flex;align-items:flex-end;gap:2px;padding:10px 10px 7px;margin:10px 0}
+.tb{flex:1;background:var(--primary);border-radius:2px 2px 0 0;opacity:.55;transition:all .2s;position:relative;cursor:default}
+.tb:hover{opacity:1}
+.tb .tt{display:none;position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:.62rem;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.tb:hover .tt{display:block}
+.tl{display:flex;gap:2px;padding:0 10px}.tl span{flex:1;text-align:center;font-size:.58rem;color:var(--text-l)}
 
-.risk-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-}
-.risk-high .risk-dot { background: var(--danger); }
-.risk-medium .risk-dot { background: #e65100; }
-.risk-low .risk-dot { background: #2e7d32; }
+.or-i{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:var(--rs);margin-bottom:5px;font-size:.78rem}
+.or-i strong{font-weight:600}
 
-/* Risk bar */
-.risk-bar-bg {
-  width: 100%;
-  height: 6px;
-  background: #eee;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.risk-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
+.ef-g{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
+.ef-c{background:var(--bg);border-radius:var(--rs);padding:11px;text-align:center}
+.ef-v{font-size:1.2rem;font-weight:700}.ef-l{font-size:.62rem;color:var(--text-m);text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
 
-/* SHAP factors */
-.shap-factors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.shap-tag {
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.shap-neg { background: #FDEEEE; color: #c62828; }
-.shap-pos { background: #E8F5E9; color: #2e7d32; }
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ac{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.ac h4{font-size:.83rem;font-weight:600;margin-bottom:10px}
+.sg-r{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:.76rem;border-bottom:1px solid var(--border-l)}.sg-r:last-child{border-bottom:none}
+.sg-l{width:95px;color:var(--text-s);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg-t{flex:1;height:5px;background:#eee;border-radius:3px}.sg-f{height:100%;border-radius:3px}
+.sg-p{width:34px;text-align:right;font-weight:600;font-size:.73rem}
 
-/* Patient avatar */
-.pt-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-}
+.ft{width:100%;border-collapse:collapse;font-size:.78rem}
+.ft th{padding:7px 11px;background:var(--bg);font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-m);text-align:left;border-bottom:1px solid var(--border)}
+.ft td{padding:7px 11px;border-bottom:1px solid var(--border-l)}
+.fg{color:var(--success);font-weight:600}.fw{color:var(--warning);font-weight:600}.fb{color:var(--danger);font-weight:600}
 
-/* ACTION BTN */
-.btn-action {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  border: 1px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: 'Outfit', sans-serif;
-}
-.btn-action:hover {
-  background: var(--primary);
-  color: #fff;
-}
-
-/* BOTTOM GRID */
-.bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.panel {
-  background: var(--card);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  padding: 24px;
-}
-.panel h3 {
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin-bottom: 16px;
-}
-
-/* SHAP DETAIL */
-.shap-detail-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  font-size: 0.85rem;
-  border-bottom: 1px solid #f5f5f5;
-}
-.shap-detail-row:last-child { border-bottom: none; }
-.shap-label { width: 160px; flex-shrink: 0; color: var(--text-muted); font-size: 0.82rem; }
-.shap-bar-bg {
-  flex: 1;
-  height: 10px;
-  background: #f0f0f0;
-  border-radius: 5px;
-  overflow: hidden;
-  position: relative;
-}
-.shap-bar-center {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: #ccc;
-}
-.shap-bar-fill {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  border-radius: 5px;
-}
-.shap-bar-neg {
-  right: 50%;
-  background: var(--danger);
-  opacity: 0.7;
-}
-.shap-bar-pos {
-  left: 50%;
-  background: var(--primary);
-  opacity: 0.7;
-}
-.shap-val {
-  width: 50px;
-  text-align: right;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.shap-val.neg { color: var(--danger); }
-.shap-val.pos { color: var(--primary); }
-
-/* DISTRIBUTION */
-.dist-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-}
-.dist-label { width: 80px; font-size: 0.82rem; font-weight: 500; }
-.dist-bar-bg {
-  flex: 1;
-  height: 24px;
-  background: #f0f0f0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.dist-bar-fill {
-  height: 100%;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #fff;
-}
-.dist-count {
-  font-size: 0.85rem;
-  font-weight: 600;
-  width: 40px;
-  text-align: right;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1100px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .bottom-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 800px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; }
-  .kpi-grid { grid-template-columns: 1fr; }
-  .pt-header, .pt-row { font-size: 0.78rem; }
-}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fadeIn .25s ease both}
+@media(max-width:1400px){.kpi-row{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1100px){.panels,.ag{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<!-- SIDEBAR -->
 <nav class="sidebar">
-  <div class="sidebar-brand">
-    <div class="logo">enara<span>.</span></div>
-    <div class="app-name">Patient Retention Intelligence</div>
-  </div>
-  <div class="sidebar-nav">
-    <a href="#" class="active"><span class="nav-icon">📊</span> Dashboard</a>
-    <a href="#"><span class="nav-icon">👥</span> Patients</a>
-    <a href="#"><span class="nav-icon">🔍</span> Risk Analysis</a>
-    <a href="#"><span class="nav-icon">📈</span> Model Performance</a>
-    <a href="#"><span class="nav-icon">🧠</span> SHAP Explorer</a>
-    <a href="#"><span class="nav-icon">📋</span> Interventions Log</a>
-    <a href="#"><span class="nav-icon">⚙️</span> Settings</a>
-  </div>
-  <div class="sidebar-footer">
-    Enara Health · MVP v0.1<br>
-    Thesis Project — UPC 2026
-  </div>
+<div class="sb-brand">enara<span>.</span></div>
+<div class="sb-app">Patient Retention Intelligence</div>
+<div class="sb-sec">Operations</div>
+<div class="sb-nav">
+<a href="#" class="active" data-view="operations"><span class="ic">📊</span>Dashboard<span class="sb-badge">38</span></a>
+<a href="#"><span class="ic">👥</span>Patient Queue</a>
+<a href="#"><span class="ic">📋</span>Intervention Log</a>
+</div>
+<div class="sb-sec">Insights</div>
+<div class="sb-nav">
+<a href="#" data-view="analytics"><span class="ic">📈</span>Risk Insights</a>
+<a href="#" data-view="fairness"><span class="ic">⚖️</span>Fairness Review</a>
+<a href="#"><span class="ic">🧠</span>Model Performance</a>
+</div>
+<div class="sb-sec">Admin</div>
+<div class="sb-nav">
+<a href="#"><span class="ic">👤</span>Patient Profiles</a>
+<a href="#"><span class="ic">⚙️</span>Settings</a>
+</div>
+<div class="sb-footer">Enara Health · MVP v0.1<br>Model: RF-SHAP v2.4<br>UPC Thesis Project 2026</div>
 </nav>
 
-<!-- MAIN -->
 <div class="main">
+<header class="topbar">
+<div class="tb-l">
+<h1>Dropout Risk Dashboard</h1>
+<div class="tb-meta">
+<div class="tb-meta-i">📅 Mar 24–30, 2026</div>
+<div class="tb-meta-i"><span class="dot-live"></span> Updated 2h ago</div>
+<div class="tb-meta-i">🧠 Predicted today 06:00</div>
+</div>
+</div>
+<div class="tb-r">
+<div class="vtabs">
+<button class="vtab active" data-view="operations">Operations</button>
+<button class="vtab" data-view="analytics">Analytics</button>
+<button class="vtab" data-view="fairness">Fairness</button>
+</div>
+<div class="avatar">SG</div>
+</div>
+</header>
 
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <h1>Dropout Risk Dashboard</h1>
-    <div class="topbar-right">
-      <span class="topbar-date">Week of Mar 24, 2026</span>
-      <div class="avatar">SG</div>
-    </div>
-  </header>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- KPI CARDS -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Active Patients</div>
-        <div class="kpi-value">1,247</div>
-        <div class="kpi-change kpi-up">↑ 3.2% vs last month</div>
-      </div>
-      <div class="kpi-card highlight">
-        <div class="kpi-label">High Risk This Week</div>
-        <div class="kpi-value">38</div>
-        <div class="kpi-change">↑ 5 from last week</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Retention Rate</div>
-        <div class="kpi-value">78.4%</div>
-        <div class="kpi-change kpi-up">↑ 2.1% since model deployed</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Avg. Prediction Lead Time</div>
-        <div class="kpi-value">18d</div>
-        <div class="kpi-change" style="color: var(--text-muted);">Days before dropout</div>
-      </div>
-    </div>
-
-    <!-- PATIENT TABLE -->
-    <div class="section-header">
-      <h2>Patients at Risk <span class="badge-count">38</span></h2>
-      <div class="filter-pills">
-        <div class="pill active">All risks</div>
-        <div class="pill">High</div>
-        <div class="pill">Medium</div>
-        <div class="pill">Low</div>
-      </div>
-    </div>
-
-    <div class="patient-table">
-      <div class="pt-header">
-        <div></div>
-        <div>Patient</div>
-        <div>Risk Score</div>
-        <div>Risk Level</div>
-        <div>Key Factors (SHAP)</div>
-        <div>Action</div>
-      </div>
-
-      <!-- Patient 1 -->
-      <div class="pt-row">
-        <div class="pt-avatar" style="background: var(--danger);">MR</div>
-        <div>
-          <div style="font-weight: 500;">Maria R.</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">ID #4521 · 14 weeks in program · Aetna</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; margin-bottom: 4px;">92%</div>
-          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 92%; background: var(--danger);"></div></div>
-        </div>
-        <div><span class="risk-badge risk-high"><span class="risk-dot"></span>High</span></div>
-        <div class="shap-factors">
-          <span class="shap-tag shap-neg">3/5 citas canceladas</span>
-          <span class="shap-tag shap-neg">Peso estancado 4 sem</span>
-          <span class="shap-tag shap-neg">Sin interacción app 18d</span>
-        </div>
-        <div><button class="btn-action">Intervene</button></div>
-      </div>
-
-      <!-- Patient 2 -->
-      <div class="pt-row">
-        <div class="pt-avatar" style="background: var(--danger);">JT</div>
-        <div>
-          <div style="font-weight: 500;">James T.</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">ID #3892 · 8 weeks in program · United Healthcare</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; margin-bottom: 4px;">87%</div>
-          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 87%; background: var(--danger);"></div></div>
-        </div>
-        <div><span class="risk-badge risk-high"><span class="risk-dot"></span>High</span></div>
-        <div class="shap-factors">
-          <span class="shap-tag shap-neg">2 no-shows seguidos</span>
-          <span class="shap-tag shap-neg">Cambio de plan rechazado</span>
-          <span class="shap-tag shap-pos">Peso bajando ✓</span>
-        </div>
-        <div><button class="btn-action">Intervene</button></div>
-      </div>
-
-      <!-- Patient 3 -->
-      <div class="pt-row">
-        <div class="pt-avatar" style="background: #e65100;">KL</div>
-        <div>
-          <div style="font-weight: 500;">Karen L.</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">ID #5107 · 22 weeks in program · BlueCross</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; margin-bottom: 4px;">64%</div>
-          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 64%; background: #e65100;"></div></div>
-        </div>
-        <div><span class="risk-badge risk-medium"><span class="risk-dot"></span>Medium</span></div>
-        <div class="shap-factors">
-          <span class="shap-tag shap-neg">Citas espaciándose</span>
-          <span class="shap-tag shap-pos">IMC mejorando ✓</span>
-          <span class="shap-tag shap-pos">App activa ✓</span>
-        </div>
-        <div><button class="btn-action">Monitor</button></div>
-      </div>
-
-      <!-- Patient 4 -->
-      <div class="pt-row">
-        <div class="pt-avatar" style="background: #e65100;">DW</div>
-        <div>
-          <div style="font-weight: 500;">David W.</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">ID #4830 · 6 weeks in program · Cigna</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; margin-bottom: 4px;">58%</div>
-          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 58%; background: #e65100;"></div></div>
-        </div>
-        <div><span class="risk-badge risk-medium"><span class="risk-dot"></span>Medium</span></div>
-        <div class="shap-factors">
-          <span class="shap-tag shap-neg">Solo 6 sem en programa</span>
-          <span class="shap-tag shap-neg">Peso sin cambio</span>
-          <span class="shap-tag shap-pos">Asistencia OK ✓</span>
-        </div>
-        <div><button class="btn-action">Monitor</button></div>
-      </div>
-
-      <!-- Patient 5 -->
-      <div class="pt-row">
-        <div class="pt-avatar" style="background: #2e7d32;">SP</div>
-        <div>
-          <div style="font-weight: 500;">Susan P.</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">ID #3456 · 30 weeks in program · Humana</div>
-        </div>
-        <div>
-          <div style="font-weight: 600; margin-bottom: 4px;">21%</div>
-          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 21%; background: #2e7d32;"></div></div>
-        </div>
-        <div><span class="risk-badge risk-low"><span class="risk-dot"></span>Low</span></div>
-        <div class="shap-factors">
-          <span class="shap-tag shap-pos">Asistencia perfecta ✓</span>
-          <span class="shap-tag shap-pos">Peso en meta ✓</span>
-          <span class="shap-tag shap-pos">App muy activa ✓</span>
-        </div>
-        <div><button class="btn-action" style="opacity: 0.4; cursor: default;">No action</button></div>
-      </div>
-    </div>
-
-    <!-- BOTTOM PANELS -->
-    <div class="bottom-grid">
-
-      <!-- SHAP Detail for selected patient -->
-      <div class="panel">
-        <h3>🧠 SHAP Explanation — Maria R. (ID #4521)</h3>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">Feature contributions to dropout risk prediction. Red = pushes toward dropout. Blue = pushes toward retention.</p>
-
-        <div class="shap-detail-row">
-          <div class="shap-label">Canceled appointments</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-neg" style="width: 28%;"></div>
-          </div>
-          <div class="shap-val neg">+0.23</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Weight stagnation</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-neg" style="width: 22%;"></div>
-          </div>
-          <div class="shap-val neg">+0.18</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Days since last app login</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-neg" style="width: 18%;"></div>
-          </div>
-          <div class="shap-val neg">+0.15</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Time between appointments</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-neg" style="width: 12%;"></div>
-          </div>
-          <div class="shap-val neg">+0.09</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Weeks in program</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-pos" style="width: 8%;"></div>
-          </div>
-          <div class="shap-val pos">−0.06</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Initial BMI</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-pos" style="width: 5%;"></div>
-          </div>
-          <div class="shap-val pos">−0.03</div>
-        </div>
-        <div class="shap-detail-row">
-          <div class="shap-label">Comorbidities</div>
-          <div class="shap-bar-bg">
-            <div class="shap-bar-center"></div>
-            <div class="shap-bar-fill shap-bar-neg" style="width: 4%;"></div>
-          </div>
-          <div class="shap-val neg">+0.02</div>
-        </div>
-      </div>
-
-      <!-- Risk Distribution -->
-      <div class="panel">
-        <h3>📊 Risk Distribution This Week</h3>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;">1,247 active patients classified by dropout probability.</p>
-
-        <div class="dist-row">
-          <div class="dist-label" style="color: var(--danger);">High</div>
-          <div class="dist-bar-bg">
-            <div class="dist-bar-fill" style="width: 30%; background: var(--danger);">38</div>
-          </div>
-          <div class="dist-count" style="color: var(--danger);">38</div>
-        </div>
-        <div class="dist-row">
-          <div class="dist-label" style="color: #e65100;">Medium</div>
-          <div class="dist-bar-bg">
-            <div class="dist-bar-fill" style="width: 55%; background: #FF9800;">142</div>
-          </div>
-          <div class="dist-count" style="color: #e65100;">142</div>
-        </div>
-        <div class="dist-row">
-          <div class="dist-label" style="color: #2e7d32;">Low</div>
-          <div class="dist-bar-bg">
-            <div class="dist-bar-fill" style="width: 100%; background: #4CAF50;">1,067</div>
-          </div>
-          <div class="dist-count" style="color: #2e7d32;">1,067</div>
-        </div>
-
-        <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
-          <h3>📋 Suggested Actions</h3>
-          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--danger-bg); border-radius: 8px; font-size: 0.85rem;">
-              <span style="font-size: 1.1rem;">📞</span>
-              <div><strong>38 patients</strong> — Schedule nutritionist call this week</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--warning-bg); border-radius: 8px; font-size: 0.85rem;">
-              <span style="font-size: 1.1rem;">💬</span>
-              <div><strong>142 patients</strong> — Send personalized check-in message</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--success-bg); border-radius: 8px; font-size: 0.85rem;">
-              <span style="font-size: 1.1rem;">✅</span>
-              <div><strong>1,067 patients</strong> — Continue standard follow-up</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
+<div class="content">
+<!-- OPERATIONS -->
+<div class="view active" id="v-operations">
+<div class="kpi-row" id="kpi-row"></div>
+<div class="fbar">
+<input type="text" id="fs" placeholder="Search name or ID…">
+<select class="fsel" id="fr"><option value="">Risk Level</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
+<select class="fsel" id="fst"><option value="">Status</option><option>Pending</option><option>Contacted</option><option>Follow-up Scheduled</option><option>Completed</option></select>
+<select class="fsel" id="fi"><option value="">Insurer</option><option>United Healthcare</option><option>Aetna</option><option>BlueCross BlueShield</option><option>Cigna</option><option>Humana</option></select>
+<select class="fsel" id="fm"><option value="">Med Track</option><option>Lifestyle Only</option><option>Non-GLP Medication</option><option>GLP-1 Supported</option></select>
+<select class="fsel" id="fc"><option value="">Modality</option><option>Virtual</option><option>Hybrid</option><option>Clinic-Linked</option></select>
+<select class="fsel" id="fo"><option value="">Assigned To</option><option>Dr. Sarah Chen</option><option>Maria Lopez, RD</option><option>James Wu, LCSW</option><option>Unassigned</option></select>
+<button class="fbtn" id="fx">✕ Clear</button>
+<span class="fcnt" id="fct"></span>
+</div>
+<div class="tw">
+<table><thead><tr>
+<th style="width:34px"></th>
+<th data-sort="name">Patient <span class="sa">▾</span></th>
+<th data-sort="risk">Risk <span class="sa">▾</span></th>
+<th data-sort="riskLevel">Level <span class="sa">▾</span></th>
+<th data-sort="priority">Priority <span class="sa">▾</span></th>
+<th data-sort="dropWin">Window <span class="sa">▾</span></th>
+<th data-sort="daysSince">Days Gap <span class="sa">▾</span></th>
+<th>Key Factors</th>
+<th>Assigned</th>
+<th>Status</th>
+<th>Action</th>
+</tr></thead><tbody id="tb"></tbody></table>
+</div>
+<div class="panels">
+<div class="pnl" id="sp"><h3 id="sp-t">🧠 Why the model is concerned</h3><div class="pnl-sub" id="sp-s">Select a patient row to see their risk explanation</div><div id="sp-c"><div class="sh-sum" style="color:var(--text-l);text-align:center">Click a patient row above to load their explanation.</div></div></div>
+<div class="pnl">
+<h3>📊 Risk Distribution</h3><div class="pnl-sub">1,247 active patients by dropout probability</div>
+<div id="dbars"></div>
+<div style="margin-top:18px"><h3>📈 High-Risk Trend (8 weeks)</h3><div class="tc" id="tch"></div><div class="tl" id="tlb"></div></div>
+<div style="margin-top:18px"><h3>📋 Outreach Plan</h3><div class="pnl-sub">Based on this week's predictions</div>
+<div class="or-i" style="background:var(--danger-l)">📞 <div><strong>12 critical</strong> — Call within 48h</div></div>
+<div class="or-i" style="background:var(--warning-l)">🩺 <div><strong>26 high-risk</strong> — Nutritionist outreach this week</div></div>
+<div class="or-i" style="background:#FEF9C3">💬 <div><strong>58 medium</strong> — Automated check-in message</div></div>
+<div class="or-i" style="background:var(--success-l)">✅ <div><strong>1,151 low</strong> — Standard follow-up</div></div>
+</div>
+<div style="margin-top:18px"><h3>✨ Intervention Effectiveness</h3>
+<div class="ef-g">
+<div class="ef-c"><div class="ef-v" style="color:var(--primary)">84</div><div class="ef-l">Contacted</div></div>
+<div class="ef-c"><div class="ef-v" style="color:var(--success)">61</div><div class="ef-l">Re-Engaged</div></div>
+<div class="ef-c"><div class="ef-v" style="color:var(--secondary)">23</div><div class="ef-l">Follow-Up</div></div>
+<div class="ef-c"><div class="ef-v" style="color:var(--primary-dark)">78%</div><div class="ef-l">Retained 30d</div></div>
+</div></div>
+</div>
+</div>
 </div>
 
+<!-- ANALYTICS -->
+<div class="view" id="v-analytics">
+<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:14px">Population Risk Insights</h2>
+<div class="ag" id="agrid"></div>
+</div>
+
+<!-- FAIRNESS -->
+<div class="view" id="v-fairness">
+<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:4px">Model Fairness Review</h2>
+<p style="font-size:.8rem;color:var(--text-m);margin-bottom:18px">Subgroup performance monitoring to ensure equitable predictions across patient populations.</p>
+<div class="panels" style="margin-bottom:16px">
+<div class="pnl"><h3>By Age Group</h3><table class="ft"><thead><tr><th>Group</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead><tbody>
+<tr><td>18–29</td><td class="fg">0.89</td><td class="fg">0.84</td><td class="fg">0.06</td><td>287</td></tr>
+<tr><td>30–44</td><td class="fg">0.91</td><td class="fg">0.87</td><td class="fg">0.05</td><td>412</td></tr>
+<tr><td>45–59</td><td class="fg">0.88</td><td class="fg">0.86</td><td class="fg">0.07</td><td>356</td></tr>
+<tr><td>60+</td><td class="fw">0.79</td><td class="fg">0.82</td><td class="fw">0.11</td><td>192</td></tr>
+</tbody></table></div>
+<div class="pnl"><h3>By Sex</h3><table class="ft"><thead><tr><th>Sex</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead><tbody>
+<tr><td>Female</td><td class="fg">0.90</td><td class="fg">0.86</td><td class="fg">0.06</td><td>741</td></tr>
+<tr><td>Male</td><td class="fg">0.87</td><td class="fg">0.85</td><td class="fg">0.07</td><td>506</td></tr>
+</tbody></table></div>
+</div>
+<div class="panels" style="margin-bottom:16px">
+<div class="pnl"><h3>By Region</h3><table class="ft"><thead><tr><th>Region</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead><tbody>
+<tr><td>West Coast</td><td class="fg">0.91</td><td class="fg">0.88</td><td class="fg">0.05</td><td>389</td></tr>
+<tr><td>East Coast</td><td class="fg">0.89</td><td class="fg">0.85</td><td class="fg">0.06</td><td>342</td></tr>
+<tr><td>Midwest</td><td class="fg">0.87</td><td class="fg">0.84</td><td class="fg">0.07</td><td>284</td></tr>
+<tr><td>South</td><td class="fw">0.82</td><td class="fw">0.79</td><td class="fw">0.10</td><td>232</td></tr>
+</tbody></table></div>
+<div class="pnl"><h3>By Race / Ethnicity</h3><div class="pnl-sub">Aggregated auditing only — not used operationally</div><table class="ft"><thead><tr><th>Group</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead><tbody>
+<tr><td>White</td><td class="fg">0.90</td><td class="fg">0.87</td><td class="fg">0.05</td><td>498</td></tr>
+<tr><td>Hispanic/Latino</td><td class="fg">0.88</td><td class="fg">0.84</td><td class="fg">0.07</td><td>312</td></tr>
+<tr><td>Black/African Am.</td><td class="fw">0.83</td><td class="fw">0.80</td><td class="fw">0.09</td><td>256</td></tr>
+<tr><td>Asian</td><td class="fg">0.91</td><td class="fg">0.88</td><td class="fg">0.05</td><td>118</td></tr>
+<tr><td>Other/Not Disc.</td><td class="fg">0.86</td><td class="fg">0.83</td><td class="fg">0.08</td><td>63</td></tr>
+</tbody></table>
+<div style="font-size:.67rem;color:var(--text-l);font-style:italic;margin-top:8px">⚠️ Race/ethnicity is used exclusively for fairness auditing. Never surfaced in operational views nor used as a prediction feature.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const P=[
+{id:'P-4521',nm:'Maria Rodriguez',ini:'MR',sex:'F',age:42,st:'CA',ins:'Aetna',wk:14,mod:'Virtual',med:'GLP-1 Supported',cli:'Enara West LA',own:'Maria Lopez, RD',risk:94,rl:'Critical',pri:'Critical',sts:'Pending',dw:8,ds:18,la:'Mar 6',eng:'Low',fac:[{t:'3 of 5 appointments canceled',v:.24,tp:'n'},{t:'Weight stagnant 4+ weeks',v:.19,tp:'n'},{t:'No app login for 18 days',v:.16,tp:'n'},{t:'Declined medication adjustment',v:.08,tp:'n'},{t:'14 weeks in program',v:-.05,tp:'p'},{t:'Initial BMI in range',v:-.03,tp:'p'}],sum:'Maria has missed most recent appointments, her weight has stalled, and she hasn\'t logged into the app in over two weeks. She also declined a recent medication adjustment. The model sees a pattern consistent with imminent dropout.',act:'Call patient'},
+{id:'P-3892',nm:'James Thompson',ini:'JT',sex:'M',age:38,st:'TX',ins:'United Healthcare',wk:8,mod:'Hybrid',med:'Non-GLP Medication',cli:'Enara Houston',own:'Dr. Sarah Chen',risk:89,rl:'Critical',pri:'Critical',sts:'Pending',dw:11,ds:14,la:'Mar 11',eng:'Low',fac:[{t:'2 consecutive no-shows',v:.22,tp:'n'},{t:'No dietitian session in 6 weeks',v:.17,tp:'n'},{t:'Labs pending since February',v:.09,tp:'n'},{t:'Weight trending down slightly',v:-.07,tp:'p'},{t:'Active medication track',v:-.04,tp:'p'}],sum:'James missed two consecutive appointments and hasn\'t had a dietitian session in over six weeks. His labs are overdue. Despite slight weight progress, his disengagement pattern is a strong dropout signal.',act:'Call patient'},
+{id:'P-3321',nm:'Thomas Chen',ini:'TC',sex:'M',age:36,st:'CA',ins:'Cigna',wk:4,mod:'Virtual',med:'Lifestyle Only',cli:'Enara SF',own:'Unassigned',risk:82,rl:'High',pri:'Critical',sts:'Pending',dw:10,ds:20,la:'Mar 5',eng:'Low',fac:[{t:'No contact in 20 days',v:.21,tp:'n'},{t:'Very early in program (4 weeks)',v:.18,tp:'n'},{t:'Never attended group class',v:.09,tp:'n'},{t:'Completed intake labs',v:-.04,tp:'p'}],sum:'Thomas is very early in the program and has had no contact in 20 days — the longest gap of any active patient. Early-stage disengagement is the strongest dropout predictor.',act:'Call patient'},
+{id:'P-7745',nm:'Michael Brown',ini:'MB',sex:'M',age:61,st:'OH',ins:'Humana',wk:10,mod:'Hybrid',med:'Lifestyle Only',cli:'Enara Columbus',own:'Maria Lopez, RD',risk:78,rl:'High',pri:'High',sts:'Pending',dw:14,ds:16,la:'Mar 9',eng:'Low',fac:[{t:'Long gap since provider visit',v:.20,tp:'n'},{t:'No dietitian session booked',v:.14,tp:'n'},{t:'Low app engagement',v:.10,tp:'n'},{t:'Age group higher dropout',v:.05,tp:'n'},{t:'Hybrid modality engaged',v:-.06,tp:'p'}],sum:'Michael has a significant gap since his last provider touchpoint and no upcoming dietitian session. Patients in his age group and engagement profile have historically higher dropout rates.',act:'Escalate to nutritionist'},
+{id:'P-5107',nm:'Karen Liu',ini:'KL',sex:'F',age:51,st:'NY',ins:'BlueCross BlueShield',wk:22,mod:'Clinic-Linked',med:'GLP-1 Supported',cli:'Enara NYC',own:'James Wu, LCSW',risk:72,rl:'High',pri:'High',sts:'Contacted',dw:18,ds:9,la:'Mar 16',eng:'Medium',fac:[{t:'Appointments spacing out',v:.14,tp:'n'},{t:'Missed behavioral visit',v:.11,tp:'n'},{t:'Group class inactive 3 weeks',v:.08,tp:'n'},{t:'BMI improving steadily',v:-.12,tp:'p'},{t:'App moderately active',v:-.06,tp:'p'}],sum:'Karen\'s appointment frequency is declining and she missed her last behavioral health visit. However, her BMI continues to improve and she still uses the app. Mixed signals — worth monitoring closely.',act:'Schedule nutritionist'},
+{id:'P-4830',nm:'David Washington',ini:'DW',sex:'M',age:34,st:'IL',ins:'Cigna',wk:6,mod:'Virtual',med:'Lifestyle Only',cli:'Enara Chicago',own:'Unassigned',risk:65,rl:'High',pri:'High',sts:'Pending',dw:21,ds:12,la:'Mar 13',eng:'Medium',fac:[{t:'Only 6 weeks in program',v:.15,tp:'n'},{t:'Weight unchanged since start',v:.13,tp:'n'},{t:'No medication track',v:.06,tp:'n'},{t:'Attendance regular so far',v:-.10,tp:'p'},{t:'Completed initial labs',v:-.04,tp:'p'}],sum:'David is early in the program and hasn\'t seen weight progress yet — a common trigger in the first 8 weeks. He\'s attending sessions but may need encouragement or care plan reassessment.',act:'Send message'},
+{id:'P-2910',nm:'Patricia Hernandez',ini:'PH',sex:'F',age:47,st:'FL',ins:'Humana',wk:18,mod:'Hybrid',med:'GLP-1 Supported',cli:'Enara Miami',own:'Maria Lopez, RD',risk:58,rl:'Medium',pri:'Medium',sts:'Follow-up Scheduled',dw:25,ds:5,la:'Mar 20',eng:'Medium',fac:[{t:'Prior auth delay on medication',v:.12,tp:'n'},{t:'Slowed weight loss',v:.09,tp:'n'},{t:'Regular app usage',v:-.11,tp:'p'},{t:'Attending group classes',v:-.08,tp:'p'},{t:'Recent provider visit',v:-.06,tp:'p'}],sum:'Patricia\'s GLP-1 prior authorization has been delayed, which may be affecting her motivation. Weight loss has slowed. However, she remains engaged with the app and group classes.',act:'Monitor'},
+{id:'P-8892',nm:'Linda Martinez',ini:'LM',sex:'F',age:44,st:'AZ',ins:'BlueCross BlueShield',wk:20,mod:'Virtual',med:'GLP-1 Supported',cli:'Enara Phoenix',own:'Dr. Sarah Chen',risk:51,rl:'Medium',pri:'Medium',sts:'Pending',dw:22,ds:8,la:'Mar 17',eng:'Medium',fac:[{t:'Weight plateau 3 weeks',v:.11,tp:'n'},{t:'Reduced app usage',v:.08,tp:'n'},{t:'Consistent attendance',v:-.13,tp:'p'},{t:'Active medication track',v:-.07,tp:'p'},{t:'Completed behavioral visit',v:-.05,tp:'p'}],sum:'Linda is experiencing a weight plateau and her app usage has decreased. She continues attending appointments and recently completed a behavioral visit. Mixed signals — worth monitoring.',act:'Send message'},
+{id:'P-6234',nm:'Robert Kim',ini:'RK',sex:'M',age:55,st:'WA',ins:'Aetna',wk:30,mod:'Virtual',med:'Non-GLP Medication',cli:'Enara Seattle',own:'Dr. Sarah Chen',risk:44,rl:'Medium',pri:'Medium',sts:'Contacted',dw:30,ds:7,la:'Mar 18',eng:'High',fac:[{t:'Approaching program milestone',v:.07,tp:'n'},{t:'Missed last behavioral visit',v:.06,tp:'n'},{t:'Strong weight progress',v:-.15,tp:'p'},{t:'High app engagement',v:-.10,tp:'p'},{t:'All labs current',v:-.05,tp:'p'}],sum:'Robert is doing well with strong weight progress and high engagement. The model flags slight concern as he approaches a program milestone — a common risk point. Low urgency.',act:'Monitor'},
+{id:'P-1183',nm:'Susan Park',ini:'SP',sex:'F',age:29,st:'CA',ins:'United Healthcare',wk:32,mod:'Clinic-Linked',med:'GLP-1 Supported',cli:'Enara West LA',own:'James Wu, LCSW',risk:18,rl:'Low',pri:'Low',sts:'Completed',dw:60,ds:3,la:'Mar 22',eng:'High',fac:[{t:'Perfect attendance',v:-.18,tp:'p'},{t:'On track for weight goal',v:-.15,tp:'p'},{t:'Daily app user',v:-.12,tp:'p'},{t:'All group classes completed',v:-.08,tp:'p'}],sum:'Susan is one of the most engaged patients. Perfect attendance, on track for her weight goal, daily app user. The model sees no dropout signals.',act:'No action needed'}
+];
+const RO={Critical:0,High:1,Medium:2,Low:3};
+const SC={Pending:'s-pend',Contacted:'s-cont','Follow-up Scheduled':'s-fu',Completed:'s-done'};
+const RC={Critical:'b-crit',High:'b-high',Medium:'b-med',Low:'b-low'};
+function rc(r){return r>=80?'#DC2626':r>=60?'#D97706':r>=40?'#CA8A04':'#059669'}
+
+let fp=[...P],sid=null,scol='risk',sdir=-1;
+
+// KPIs
+const kd=[
+{l:'Active Patients',v:'1,247',d:'↑ 3.2%',c:'kpi-up',t:'Total patients enrolled in weight care program'},
+{l:'High-Risk',v:'38',d:'↑ 5',c:'kpi-dn',h:1,t:'Patients with >60% predicted dropout probability'},
+{l:'Dropout Rate (30d)',v:'4.8%',d:'↓ 0.6%',c:'kpi-up',t:'Estimated dropout rate next 30 days'},
+{l:'Retention Rate',v:'78.4%',d:'↑ 2.1%',c:'kpi-up',t:'Patients completing program milestones'},
+{l:'Avg Lead Time',v:'18d',d:'Steady',c:'kpi-n',t:'Days before dropout the model flags patient'},
+{l:'Coverage',v:'92%',d:'↑ 4%',c:'kpi-up',t:'High-risk patients with assigned action'},
+{l:'Retained Post-Outreach',v:'78%',d:'↑ 3%',c:'kpi-up',t:'Contacted high-risk patients who stayed'},
+{l:'Pending Contact',v:'14',d:'↓ 8',c:'kpi-up',t:'High-risk patients not yet reached'}
+];
+document.getElementById('kpi-row').innerHTML=kd.map(k=>`<div class="kpi ${k.h?'hero':''}"><div class="kpi-tip">${k.t}</div><div class="kpi-lb">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-d ${k.c}">${k.d}</div></div>`).join('');
+
+// Table
+function rt(){
+const tb=document.getElementById('tb');
+tb.innerHTML=fp.map(p=>{
+const s=p.id===sid?'sel':'';
+const cl=rc(p.risk);
+const ch=p.fac.slice(0,3).map(f=>`<span class="chip ${f.tp==='n'?'c-n':'c-p'}">${f.t}</span>`).join('');
+return`<tr class="${s}" data-id="${p.id}">
+<td><div class="pav" style="background:${cl}">${p.ini}</div></td>
+<td><div style="font-weight:500">${p.nm}</div><div style="font-size:.68rem;color:var(--text-m)">${p.id} · ${p.wk}w · ${p.ins}</div></td>
+<td><span style="font-weight:600">${p.risk}%</span><div class="rbar"><div class="rfill" style="width:${p.risk}%;background:${cl}"></div></div></td>
+<td><span class="bdg ${RC[p.rl]}">${p.rl}</span></td>
+<td><span class="bdg ${RC[p.pri]}">${p.pri}</span></td>
+<td style="font-size:.78rem">~${p.dw}d</td>
+<td><span style="font-weight:${p.ds>14?'600':'400'};color:${p.ds>14?'var(--danger)':'inherit'}">${p.ds}d</span></td>
+<td>${ch}</td>
+<td style="font-size:.76rem;color:${p.own==='Unassigned'?'var(--danger)':'var(--text-s)'}">${p.own}</td>
+<td><span class="bdg ${SC[p.sts]}">${p.sts}</span></td>
+<td><button class="abtn" onclick="event.stopPropagation()">${p.act}</button></td>
+</tr>`}).join('');
+document.getElementById('fct').textContent=fp.length+' of '+P.length+' patients';
+tb.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{sid=tr.dataset.id;rt();rshap(sid)}));
+}
+function sp(){fp.sort((a,b)=>{let va=a[scol],vb=b[scol];if(scol==='rl'||scol==='pri'){va=RO[va]||0;vb=RO[vb]||0}if(typeof va==='string')return va.localeCompare(vb)*sdir;return(va-vb)*sdir})}
+document.querySelectorAll('thead th[data-sort]').forEach(th=>th.addEventListener('click',()=>{const c=th.dataset.sort;if(scol===c)sdir*=-1;else{scol=c;sdir=-1}document.querySelectorAll('thead th').forEach(h=>h.classList.remove('sorted'));th.classList.add('sorted');sp();rt()}));
+
+// Filters
+function af(){
+const s=document.getElementById('fs').value.toLowerCase(),r=document.getElementById('fr').value,st=document.getElementById('fst').value,i=document.getElementById('fi').value,m=document.getElementById('fm').value,c=document.getElementById('fc').value,o=document.getElementById('fo').value;
+fp=P.filter(p=>{if(s&&!p.nm.toLowerCase().includes(s)&&!p.id.toLowerCase().includes(s))return!1;if(r&&p.rl!==r)return!1;if(st&&p.sts!==st)return!1;if(i&&p.ins!==i)return!1;if(m&&p.med!==m)return!1;if(c&&p.mod!==c)return!1;if(o&&p.own!==o)return!1;return!0});sp();rt()}
+document.querySelectorAll('.fbar select,.fbar input').forEach(e=>e.addEventListener('input',af));
+document.getElementById('fx').addEventListener('click',()=>{document.querySelectorAll('.fbar select').forEach(s=>s.value='');document.getElementById('fs').value='';af()});
+
+// SHAP
+function rshap(id){
+const p=P.find(x=>x.id===id);if(!p)return;
+const mx=Math.max(...p.fac.map(f=>Math.abs(f.v)));
+const bars=p.fac.map(f=>{const pct=(Math.abs(f.v)/mx)*42;const neg=f.v>0;const bh=neg?`<div class="sh-val sh-neg" style="width:${pct}%"></div>`:`<div class="sh-val sh-pos" style="width:${pct}%"></div>`;
+return`<div class="sh-row"><div class="sh-lb">${f.t}</div><div class="sh-trk"><div class="sh-mid"></div>${bh}</div><div class="sh-n ${neg?'neg':'pos'}">${f.v>0?'+':''}${f.v.toFixed(2)}</div></div>`}).join('');
+document.getElementById('sp-c').innerHTML=`<div class="sh-sum fi">${p.sum}</div><div class="fi" style="animation-delay:.05s">${bars}</div><div class="sh-note fi" style="animation-delay:.1s">⚠️ These factors influenced the model prediction. They are not direct clinical causes. Clinical judgment should always guide intervention decisions.</div>`;
+document.getElementById('sp-t').textContent='🧠 Why the model is concerned — '+p.nm;
+document.getElementById('sp-s').textContent=p.id+' · '+p.risk+'% risk · '+p.med+' · '+p.mod+' · '+p.cli;
+}
+
+// Distribution
+const dd=[{l:'Critical',n:12,c:'#DC2626'},{l:'High',n:26,c:'#D97706'},{l:'Medium',n:58,c:'#CA8A04'},{l:'Low',n:1151,c:'#059669'}];
+document.getElementById('dbars').innerHTML=dd.map(d=>{const p=(d.n/1247)*100;return`<div class="dr"><div class="dr-lb" style="color:${d.c}">${d.l}</div><div class="dr-trk"><div class="dr-fl" style="width:${Math.max(p,3)}%;background:${d.c}">${d.n}</div></div><div class="dr-n" style="color:${d.c}">${d.n}</div></div>`}).join('');
+
+// Trend
+const td=[{w:'Feb 3',v:28},{w:'Feb 10',v:31},{w:'Feb 17',v:25},{w:'Feb 24',v:33},{w:'Mar 3',v:29},{w:'Mar 10',v:35},{w:'Mar 17',v:32},{w:'Mar 24',v:38}];
+const tmx=Math.max(...td.map(d=>d.v));
+document.getElementById('tch').innerHTML=td.map((d,i)=>{const h=(d.v/tmx)*100;const last=i===td.length-1;return`<div class="tb" style="height:${h}%;${last?'opacity:1;background:var(--danger)':''}"><div class="tt">${d.w}: ${d.v}</div></div>`}).join('');
+document.getElementById('tlb').innerHTML=td.map(d=>`<span>${d.w.split(' ')[1]}</span>`).join('');
+
+// Analytics
+const segs=[
+{t:'Risk by Age Range',i:[{l:'18–29',p:22},{l:'30–44',p:31},{l:'45–59',p:35},{l:'60+',p:42}]},
+{t:'Risk by Insurer',i:[{l:'United',p:28},{l:'Aetna',p:34},{l:'BlueCross',p:26},{l:'Cigna',p:38},{l:'Humana',p:31}]},
+{t:'Risk by Med Track',i:[{l:'Lifestyle Only',p:41},{l:'Non-GLP Med',p:29},{l:'GLP-1',p:22}]},
+{t:'Risk by Modality',i:[{l:'Virtual',p:35},{l:'Hybrid',p:28},{l:'Clinic-Linked',p:21}]},
+{t:'Risk by State',i:[{l:'California',p:29},{l:'Texas',p:36},{l:'New York',p:27},{l:'Florida',p:38},{l:'Illinois',p:33},{l:'Ohio',p:40}]},
+{t:'Risk by Program Stage',i:[{l:'0–4 weeks',p:45},{l:'5–12 weeks',p:34},{l:'13–24 weeks',p:26},{l:'25+ weeks',p:18}]},
+{t:'Risk by Sex',i:[{l:'Female',p:30},{l:'Male',p:34}]},
+{t:'Risk by Engagement',i:[{l:'High',p:12},{l:'Medium',p:31},{l:'Low',p:54}]},
+{t:'Risk by Clinic',i:[{l:'West LA',p:26},{l:'Houston',p:35},{l:'NYC',p:28},{l:'Miami',p:32},{l:'SF',p:30}]}
+];
+document.getElementById('agrid').innerHTML=segs.map(s=>{const rows=s.i.map(i=>{const c=i.p>=40?'#DC2626':i.p>=30?'#D97706':'#059669';return`<div class="sg-r"><div class="sg-l">${i.l}</div><div class="sg-t"><div class="sg-f" style="width:${i.p}%;background:${c}"></div></div><div class="sg-p" style="color:${c}">${i.p}%</div></div>`}).join('');return`<div class="ac"><h4>${s.t}</h4>${rows}</div>`}).join('');
+
+// Views
+function sv(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById('v-'+v).classList.add('active');document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));document.querySelectorAll(`.vtab[data-view="${v}"]`).forEach(t=>t.classList.add('active'));document.querySelectorAll('.sb-nav a').forEach(a=>{a.classList.remove('active');if(a.dataset.view===v)a.classList.add('active')})}
+document.querySelectorAll('.vtab').forEach(t=>t.addEventListener('click',()=>sv(t.dataset.view)));
+document.querySelectorAll('.sb-nav a[data-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();sv(a.dataset.view)}));
+
+sp();rt();
+</script>
 </body>
 </html>
