@@ -1,11 +1,15 @@
 /**
- * FAIRNESS MODULE v3 — Rich visual redesign
+ * FAIRNESS MODULE v5
+ * - Removed race/ethnicity section entirely
+ * - Fixed n=xxx display as clean chip badges
+ * - Added SVG gauge stroke animation
+ * - Added metric bar animation triggers
  */
 EnaraApp.renderFairness = function() {
   var container = document.getElementById('view-fairness');
   if (!container) return;
 
-  /* ─── Data ─── */
+  /* ─── Data (ethnicity removed) ─── */
   var groups = {
     age: {
       icon: 'userAge', title: 'By Age Group', sub: '1,247 patients across 4 cohorts',
@@ -31,16 +35,6 @@ EnaraApp.renderFairness = function() {
         { label: 'Midwest',    recall: 0.87, precision: 0.84, fpr: 0.07, n: 284 },
         { label: 'South',      recall: 0.82, precision: 0.79, fpr: 0.10, n: 232 }
       ]
-    },
-    ethnicity: {
-      icon: 'diversity', title: 'By Race / Ethnicity', sub: 'Audit-only · not used operationally',
-      rows: [
-        { label: 'White',            recall: 0.90, precision: 0.87, fpr: 0.05, n: 498 },
-        { label: 'Hispanic/Latino',  recall: 0.88, precision: 0.84, fpr: 0.07, n: 312 },
-        { label: 'Black/African Am.',recall: 0.83, precision: 0.80, fpr: 0.09, n: 256 },
-        { label: 'Asian',            recall: 0.91, precision: 0.88, fpr: 0.05, n: 118 },
-        { label: 'Other/Not Disc.',  recall: 0.86, precision: 0.83, fpr: 0.08, n: 63 }
-      ]
     }
   };
 
@@ -57,7 +51,7 @@ EnaraApp.renderFairness = function() {
 
   function metricCell(metric, val) {
     var cls = classify(metric, val);
-    var pct = metric === 'fpr' ? (val * 100 / 15 * 100) : (val * 100);
+    var pct = metric === 'fpr' ? (val / 0.15 * 100) : (val * 100);
     return '<div class="fgc-metric">' +
       '<div class="fgc-metric-name">' + metric.toUpperCase() + '</div>' +
       '<div class="fgc-metric-bar-wrap">' +
@@ -71,7 +65,10 @@ EnaraApp.renderFairness = function() {
     var g = groups[key];
     var rows = g.rows.map(function(row) {
       return '<div class="fgc-row">' +
-        '<div class="fgc-row-label">' + row.label + '<div style="font-size:0.6rem;font-weight:400;color:var(--color-text-muted);margin-top:1px">n=' + row.n + '</div></div>' +
+        '<div class="fgc-row-label">' +
+          '<span class="fgc-row-name">' + row.label + '</span>' +
+          '<span class="fgc-row-n">' + row.n + '</span>' +
+        '</div>' +
         metricCell('recall', row.recall) +
         metricCell('prec.', row.precision) +
         metricCell('fpr', row.fpr) +
@@ -86,27 +83,24 @@ EnaraApp.renderFairness = function() {
     '</div>';
   }
 
-  /* ─── Gauge helpers (SVG half-arc) ─── */
-  function buildGauge(value, label, color, sub) {
+  /* ─── Animated SVG half-arc gauge ─── */
+  function buildGauge(value, label, color, sub, id) {
     var r = 40, cx = 50, cy = 50;
     var pct = Math.min(Math.max(value, 0), 1);
-    // Half-circle (180deg arc)
-    var startAngle = Math.PI;
-    var endAngle = Math.PI + pct * Math.PI;
-    var x1 = cx + r * Math.cos(startAngle);
-    var y1 = cy + r * Math.sin(startAngle);
-    var x2 = cx + r * Math.cos(endAngle);
-    var y2 = cy + r * Math.sin(endAngle);
-    var largeArc = pct > 0.5 ? 1 : 0;
-
+    /* Half-circle arc path */
     var bgPath = 'M ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy;
-    var valPath = 'M ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + x2 + ' ' + y2;
+    /* Calculate the total arc length for half-circle */
+    var arcLength = Math.PI * r;
+    var fillLength = arcLength * pct;
 
     return '<div class="gauge-card">' +
       '<div class="gauge-svg-wrap">' +
         '<svg width="100" height="58" viewBox="0 0 100 58">' +
           '<path d="' + bgPath + '" fill="none" stroke="var(--color-border-light)" stroke-width="10" stroke-linecap="round"/>' +
-          '<path d="' + valPath + '" fill="none" stroke="' + color + '" stroke-width="10" stroke-linecap="round"/>' +
+          '<path class="gauge-arc" d="' + bgPath + '" fill="none" stroke="' + color + '" stroke-width="10" stroke-linecap="round" ' +
+            'stroke-dasharray="' + arcLength.toFixed(1) + '" ' +
+            'stroke-dashoffset="' + arcLength.toFixed(1) + '" ' +
+            'data-target="' + (arcLength - fillLength).toFixed(1) + '"/>' +
         '</svg>' +
         '<div class="gauge-center">' +
           '<div class="gauge-value" style="color:' + color + '">' + Math.round(pct * 100) + '%</div>' +
@@ -117,49 +111,53 @@ EnaraApp.renderFairness = function() {
     '</div>';
   }
 
-  /* ─── Divergence chart (Recall gap from best) ─── */
+  /* ─── Divergence chart ─── */
   function buildDiverg(groupKey, metricKey) {
     var g = groups[groupKey];
-    var vals = g.rows.map(function(r) { return r[metricKey === 'recall' ? 'recall' : metricKey === 'precision' ? 'precision' : 'fpr']; });
+    var vals = g.rows.map(function(r) { return r[metricKey]; });
     var best = metricKey === 'fpr' ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
     var maxDiff = 0.15;
 
-    var rows = g.rows.map(function(row) {
-      var val = metricKey === 'fpr' ? row.fpr : (metricKey === 'recall' ? row.recall : row.precision);
-      var diff = metricKey === 'fpr' ? (val - best) : (val - best);
-      var isPos = diff >= 0;
+    return g.rows.map(function(row) {
+      var val = row[metricKey];
+      var diff = val - best;
       var barPct = Math.abs(diff) / maxDiff * 50;
       var color = Math.abs(diff) < 0.03 ? 'var(--color-success)' : Math.abs(diff) < 0.08 ? 'var(--color-warning)' : 'var(--color-danger)';
       var sign = diff > 0 ? '+' : '';
+      var barDir = diff >= 0 ? 'pos' : 'neg';
       return '<div class="diverg-row">' +
         '<div class="diverg-row-label">' + row.label + '</div>' +
         '<div class="diverg-center-line">' +
           '<div class="diverg-axis"></div>' +
-          (diff === 0 ? '' :
-            isPos
-              ? '<div class="diverg-bar diverg-bar--pos" style="width:' + barPct + '%;background:' + color + '"></div>'
-              : '<div class="diverg-bar diverg-bar--neg" style="width:' + barPct + '%;background:' + color + '"></div>'
-          ) +
+          (diff === 0 ? '' : '<div class="diverg-bar diverg-bar--' + barDir + '" style="background:' + color + '" data-pct="' + barPct.toFixed(0) + '"></div>') +
         '</div>' +
         '<div class="diverg-val" style="color:' + color + '">' + sign + diff.toFixed(2) + '</div>' +
       '</div>';
     }).join('');
-
-    return rows;
   }
 
-  /* ─── Build HTML ─── */
+  /* ─── Assembly ─── */
+  var headerHTML =
+    '<div class="fairness-header">' +
+      '<div>' +
+        '<div class="fairness-headline">Model <span>Fairness</span> Review</div>' +
+        '<div class="fairness-tagline">Subgroup performance monitoring · RF-SHAP v2.4 · 1,247 patients</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="fairness-badge-row">' +
+      '<div class="fbadge fbadge--ok">Age parity: within tolerance</div>' +
+      '<div class="fbadge fbadge--ok">Sex parity: within tolerance</div>' +
+      '<div class="fbadge fbadge--warn">Region: South gap detected</div>' +
+    '</div>';
+
   var gaugesHTML =
     '<div class="fairness-section-title">Overall Model Performance</div>' +
     '<div class="fairness-gauges">' +
       buildGauge(0.88, 'Avg Recall', 'var(--color-success)', 'Across all subgroups') +
       buildGauge(0.85, 'Avg Precision', 'var(--color-primary)', 'Across all subgroups') +
-      buildGauge(1 - 0.07, 'FPR OK', 'var(--color-success)', 'Avg FPR 0.07') +
+      buildGauge(0.93, 'FPR OK', 'var(--color-success)', 'Avg FPR 0.07') +
       buildGauge(0.78, 'Equity Score', 'var(--color-warning)', 'Max Recall gap 0.12') +
     '</div>';
-
-  var disclaimerHTML =
-    '<div class="fairness-disclaimer"><span class="disclaimer-icon"></span><div><strong>Note on Race/Ethnicity:</strong> This dimension is used exclusively for fairness auditing. It is never surfaced in operational views nor used as a prediction feature. All subgroup comparisons are for internal model governance only.</div></div>';
 
   var groupRowHTML =
     '<div class="fairness-section-title">Subgroup Performance</div>' +
@@ -169,7 +167,6 @@ EnaraApp.renderFairness = function() {
     '</div>' +
     '<div class="fairness-group-row">' +
       buildGroupCard('region') +
-      buildGroupCard('ethnicity') +
     '</div>';
 
   var divergHTML =
@@ -187,26 +184,9 @@ EnaraApp.renderFairness = function() {
       '</div>' +
     '</div>';
 
-  /* Header */
-  var headerHTML =
-    '<div class="fairness-header">' +
-      '<div>' +
-        '<div class="fairness-headline">Model <span>Fairness</span> Review</div>' +
-        '<div class="fairness-tagline">Subgroup performance monitoring · RF-SHAP v2.4 · 1,247 patients</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="fairness-badge-row">' +
-      '<div class="fbadge fbadge--ok">Age parity: within tolerance</div>' +
-      '<div class="fbadge fbadge--ok">Sex parity: within tolerance</div>' +
-      '<div class="fbadge fbadge--warn">Region: South gap detected</div>' +
-      '<div class="fbadge fbadge--warn">Race/Eth: Black/Af. Am. gap</div>' +
-      '<div class="fbadge fbadge--info">ℹ Audit only · not operational</div>' +
-    '</div>';
+  container.innerHTML = headerHTML + gaugesHTML + groupRowHTML + divergHTML;
 
-  container.innerHTML = headerHTML + gaugesHTML + disclaimerHTML + groupRowHTML + divergHTML;
-
-
-  /* Inject SVG icons into fairness group cards */
+  /* Inject SVG icons */
   requestAnimationFrame(function() {
     var I = window.EnaraIcons;
     if (!I) return;
@@ -214,9 +194,20 @@ EnaraApp.renderFairness = function() {
       var key = el.getAttribute('data-fgc-icon');
       if (I[key]) el.innerHTML = I[key];
     });
-    var discIcon = container.querySelector('.disclaimer-icon');
-    if (discIcon) discIcon.innerHTML = I.alert;
   });
+};
 
-  /* Bar animation triggered by EnaraApp.animateFairnessBars() — called from views.js */
+/* ─── Gauge animation function (called from views.js) ─── */
+EnaraApp.animateGauges = function() {
+  document.querySelectorAll('.gauge-arc').forEach(function(arc) {
+    var arcLen = parseFloat(arc.getAttribute('stroke-dasharray'));
+    arc.style.transition = 'none';
+    arc.style.strokeDashoffset = arcLen + 'px';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+        arc.style.strokeDashoffset = arc.dataset.target + 'px';
+      });
+    });
+  });
 };
