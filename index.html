@@ -1,289 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enara Health — Patient Retention Intelligence</title>
+/**
+ * ANALYTICS MODULE v3 — Rich visual redesign
+ */
+EnaraApp.renderAnalytics = function() {
+  var container = document.getElementById('analytics-grid');
+  if (!container) return;
 
-  <!-- Google Fonts: Outfit (Enara brand typeface) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  /* ── Page header ── */
+  var headerHTML =
+    '<div class="analytics-header">' +
+      '<div>' +
+        '<div class="analytics-headline">Population <span>Risk</span> Insights</div>' +
+        '<div class="analytics-tagline">Dropout probability across 9 dimensions · 1,247 active patients · RF-SHAP v2.4</div>' +
+      '</div>' +
+    '</div>';
 
-  <!-- Stylesheets (load order matters) -->
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/kpi.css">
-  <link rel="stylesheet" href="css/dashboard.css">
-  <link rel="stylesheet" href="css/drawer.css">
-  <link rel="stylesheet" href="css/analytics.css">
-  <link rel="stylesheet" href="css/fairness.css">
-  <link rel="stylesheet" href="css/utilities.css">
-</head>
-<body>
+  /* ── Summary bar ── */
+  var summaryHTML = '<div class="analytics-summary-bar">' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--danger" id="asb-icon-danger"></div><div><div class="asb-value" style="color:var(--color-danger)">45%</div><div class="asb-label">Highest risk segment<br>0–4 wk program stage</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--warning" id="asb-icon-warn"></div><div><div class="asb-value" style="color:var(--color-warning)">54%</div><div class="asb-label">Low-engagement dropout<br>vs 12% high-engagement</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--success" id="asb-icon-succ"></div><div><div class="asb-value" style="color:var(--color-success)">21%</div><div class="asb-label">Lowest risk segment<br>Clinic-linked modality</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--primary" id="asb-icon-prim"></div><div><div class="asb-value" style="color:var(--color-primary)">9</div><div class="asb-label">Risk segments analyzed<br>across 6 dimensions</div></div></div>' +
+  '</div>';
 
-  <!-- ====================================================
-       SIDEBAR NAVIGATION
-       ==================================================== -->
-  <nav class="sidebar">
-    <div class="sidebar__brand">enara<span>.</span></div>
-    <div class="sidebar__app-name">Patient Retention Intelligence</div>
+  /* ── Insight callouts ── */
+  var insightHTML = '<div class="analytics-section-title">Key Takeaways</div>' +
+    '<div class="insight-strip">' +
+      '<div class="insight-card insight-card--danger"><div class="insight-card__label">Highest Risk</div><div class="insight-card__text">Patients in <strong>0–4 weeks</strong> of the program carry a <strong>45% dropout risk</strong>. Early engagement is the single strongest lever.</div></div>' +
+      '<div class="insight-card insight-card--warning"><div class="insight-card__label">Watch Group</div><div class="insight-card__text"><strong>Low-engagement patients</strong> are 4.5× more likely to drop out than high-engagement ones (54% vs 12%).</div></div>' +
+      '<div class="insight-card insight-card--success"><div class="insight-card__label">Bright Spot</div><div class="insight-card__text"><strong>GLP-1 supported</strong> patients and <strong>clinic-linked</strong> modality show consistently the lowest dropout risk.</div></div>' +
+    '</div>';
 
-    <div class="sidebar__section">Operations</div>
-    <div class="sidebar__nav">
-      <a href="#" class="is-active" data-view="operations">
-        <span class="nav-icon">📊</span>Dashboard<span class="sidebar__badge">38</span>
-      </a>
-      <a href="#"><span class="nav-icon">👥</span>Patient Queue</a>
-      <a href="#"><span class="nav-icon">📋</span>Intervention Log</a>
-    </div>
+  /* ── Heatmap: Risk × Stage × Modality ── */
+  var heatmapHTML = '<div class="analytics-section-title">Risk Heatmap — Program Stage × Modality</div>' +
+    '<div class="heatmap-section"><div class="heatmap-wrap"><table class="heatmap-table">' +
+    '<thead><tr><th>Stage</th><th>Virtual</th><th>Hybrid</th><th>Clinic-Linked</th><th>Avg</th></tr></thead><tbody>';
 
-    <div class="sidebar__section">Insights</div>
-    <div class="sidebar__nav">
-      <a href="#" data-view="analytics"><span class="nav-icon">📈</span>Risk Insights</a>
-      <a href="#" data-view="fairness"><span class="nav-icon">⚖️</span>Fairness Review</a>
-      <a href="#"><span class="nav-icon">🧠</span>Model Performance</a>
-    </div>
+  var hmData = [
+    { stage: '0–4 weeks',   v: 48, h: 43, c: 38 },
+    { stage: '5–12 weeks',  v: 37, h: 31, c: 26 },
+    { stage: '13–24 weeks', v: 29, h: 24, c: 20 },
+    { stage: '25+ weeks',   v: 20, h: 17, c: 14 }
+  ];
 
-    <div class="sidebar__section">Admin</div>
-    <div class="sidebar__nav">
-      <a href="#"><span class="nav-icon">👤</span>Patient Profiles</a>
-      <a href="#"><span class="nav-icon">⚙️</span>Settings</a>
-    </div>
+  function heatColor(val) {
+    if (val >= 40) return { bg: 'rgba(229,62,62,0.75)',  cls: '' };
+    if (val >= 30) return { bg: 'rgba(221,107,32,0.75)', cls: '' };
+    if (val >= 20) return { bg: 'rgba(236,201,75,0.75)', cls: '' };
+    return { bg: 'rgba(72,187,120,0.75)', cls: '' };
+  }
 
-    <div class="sidebar__footer">
-      Enara Health · MVP v0.1<br>
-      Model: RF-SHAP v2.4<br>
-      UPC Thesis Project 2026
-    </div>
-  </nav>
+  hmData.forEach(function(row) {
+    var avg = Math.round((row.v + row.h + row.c) / 3);
+    var c = { v: heatColor(row.v), h: heatColor(row.h), c: heatColor(row.c), avg: heatColor(avg) };
+    heatmapHTML += '<tr>' +
+      '<td>' + row.stage + '</td>' +
+      '<td><span class="heatmap-cell" style="background:' + c.v.bg + '">' + row.v + '%</span></td>' +
+      '<td><span class="heatmap-cell" style="background:' + c.h.bg + '">' + row.h + '%</span></td>' +
+      '<td><span class="heatmap-cell" style="background:' + c.c.bg + '">' + row.c + '%</span></td>' +
+      '<td><span class="heatmap-cell" style="background:' + c.avg.bg + '">' + avg + '%</span></td>' +
+    '</tr>';
+  });
+  heatmapHTML += '</tbody></table></div></div>';
 
-  <!-- ====================================================
-       MAIN CONTENT AREA
-       ==================================================== -->
-  <div class="main">
+  /* ── Bubble: Risk by engagement ── */
+  var engagementData = [
+    { l: 'High', p: 12,  n: 310 },
+    { l: 'Medium', p: 31, n: 560 },
+    { l: 'Low', p: 54,   n: 377 }
+  ];
+  var maxBubble = 80;
+  var bubbleCols = engagementData.map(function(d) {
+    var sz = 30 + (d.p / 54) * 50;
+    var color = d.p >= 40 ? 'var(--color-danger)' : d.p >= 25 ? 'var(--color-warning)' : 'var(--color-success)';
+    return '<div class="bubble-col">' +
+      '<div class="bubble" style="width:' + sz + 'px;height:' + sz + 'px;background:' + color + '">' + d.p + '%</div>' +
+      '<div class="bubble-label">' + d.l + '<br><span style="color:var(--color-text-muted);font-size:0.58rem;">n=' + d.n + '</span></div>' +
+    '</div>';
+  }).join('');
 
-    <!-- Top Header Bar -->
-    <header class="topbar">
-      <div class="topbar__left">
-        <h1 class="topbar__title">Dropout Risk Dashboard</h1>
-        <div class="topbar__meta">
-          <div class="topbar__meta-item">📅 Mar 24–30, 2026</div>
-          <div class="topbar__meta-item">
-            <span class="topbar__dot-live"></span> Updated 2h ago
-          </div>
-          <div class="topbar__meta-item">🧠 Predicted today 06:00</div>
-        </div>
-      </div>
-      <div class="topbar__right">
-        <div class="view-tabs">
-          <button class="view-tab is-active" data-view="operations">Operations</button>
-          <button class="view-tab" data-view="analytics">Analytics</button>
-          <button class="view-tab" data-view="fairness">Fairness</button>
-        </div>
-        <div class="topbar__avatar">SG</div>
-      </div>
-    </header>
+  var bubbleHTML = '<div class="bubble-panel">' +
+    '<div class="bubble-panel__title">Risk by Engagement Level</div>' +
+    '<div class="bubble-panel__sub">Bubble size proportional to dropout probability</div>' +
+    '<div class="bubble-canvas">' + bubbleCols + '</div>' +
+  '</div>';
 
-    <!-- Content Container -->
-    <div class="content">
+  /* ── Donut: Distribution ── */
+  var distData = [
+    { label: 'Critical', count: 12,   color: '#E53E3E', pct: 1 },
+    { label: 'High',     count: 26,   color: '#DD6B20', pct: 2 },
+    { label: 'Medium',   count: 58,   color: '#D69E2E', pct: 5 },
+    { label: 'Low',      count: 1151, color: '#48BB78', pct: 92 }
+  ];
+  var total = 1247;
 
-      <!-- ================================================
-           OPERATIONS VIEW
-           ================================================ -->
-      <div class="view is-active" id="view-operations">
+  // Build SVG donut
+  var cx = 70, cy = 70, r = 54, stroke = 18;
+  var circumference = 2 * Math.PI * r;
+  var offset = 0;
+  var donutSegments = '';
+  distData.forEach(function(d) {
+    var pct = d.count / total;
+    var dasharray = pct * circumference;
+    var dashoffset = circumference - offset * circumference;
+    donutSegments += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + d.color + '" stroke-width="' + stroke + '" stroke-dasharray="' + dasharray.toFixed(2) + ' ' + (circumference - dasharray).toFixed(2) + '" stroke-dashoffset="' + (circumference * 0.25).toFixed(2) + '" transform="rotate(' + (offset * 360 - 90) + ' ' + cx + ' ' + cy + ')" stroke-linecap="butt"/>';
+    offset += pct;
+  });
 
-        <!-- KPI Row (rendered by js/kpi.js) -->
-        <div class="kpi-row" id="kpi-row"></div>
+  var legendItems = distData.map(function(d) {
+    return '<div class="donut-legend-item">' +
+      '<div class="donut-legend-dot" style="background:' + d.color + '"></div>' +
+      '<div class="donut-legend-label">' + d.label + '</div>' +
+      '<div class="donut-legend-val">' + d.count + '</div>' +
+      '<div class="donut-legend-pct">(' + d.pct + '%)</div>' +
+    '</div>';
+  }).join('');
 
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-          <input type="text" class="filter-bar__search" id="filter-search"
-                 placeholder="Search name or ID…">
-          <select class="filter-bar__select" id="filter-risk">
-            <option value="">Risk Level</option>
-            <option>Critical</option><option>High</option>
-            <option>Medium</option><option>Low</option>
-          </select>
-          <select class="filter-bar__select" id="filter-status">
-            <option value="">Status</option>
-            <option>Pending</option><option>Contacted</option>
-            <option>Follow-up Scheduled</option><option>Completed</option>
-          </select>
-          <select class="filter-bar__select" id="filter-insurer">
-            <option value="">Insurer</option>
-            <option>United Healthcare</option><option>Aetna</option>
-            <option>BlueCross BlueShield</option><option>Cigna</option>
-            <option>Humana</option>
-          </select>
-          <select class="filter-bar__select" id="filter-medtrack">
-            <option value="">Med Track</option>
-            <option>Lifestyle Only</option><option>Non-GLP Medication</option>
-            <option>GLP-1 Supported</option>
-          </select>
-          <select class="filter-bar__select" id="filter-modality">
-            <option value="">Modality</option>
-            <option>Virtual</option><option>Hybrid</option>
-            <option>Clinic-Linked</option>
-          </select>
-          <select class="filter-bar__select" id="filter-owner">
-            <option value="">Assigned To</option>
-            <option>Dr. Sarah Chen</option><option>Maria Lopez, RD</option>
-            <option>James Wu, LCSW</option><option>Unassigned</option>
-          </select>
-          <button class="filter-bar__btn" id="filter-clear">✕ Clear</button>
-          <span class="filter-bar__count" id="filter-count"></span>
-        </div>
+  var donutHTML = '<div class="donut-panel">' +
+    '<div class="donut-panel__title">Risk Distribution</div>' +
+    '<div class="donut-panel__sub">1,247 active patients by dropout tier</div>' +
+    '<div class="donut-body">' +
+      '<div class="donut-svg-wrap">' +
+        '<svg width="140" height="140" viewBox="0 0 140 140">' + donutSegments + '</svg>' +
+        '<div class="donut-center"><div class="donut-center-value">1,247</div><div class="donut-center-label">patients</div></div>' +
+      '</div>' +
+      '<div class="donut-legend">' + legendItems + '</div>' +
+    '</div>' +
+  '</div>';
 
-        <!-- Patient Intervention Queue -->
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="col-avatar"></th>
-                <th data-sort="name">Patient <span class="sort-arrow">▾</span></th>
-                <th data-sort="risk">Risk <span class="sort-arrow">▾</span></th>
-                <th data-sort="riskLevel">Level <span class="sort-arrow">▾</span></th>
-                <th data-sort="priority">Priority <span class="sort-arrow">▾</span></th>
-                <th data-sort="dropoutWindow">Window <span class="sort-arrow">▾</span></th>
-                <th data-sort="daysSince">Days Gap <span class="sort-arrow">▾</span></th>
-                <th>Key Factors</th>
-                <th>Assigned</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-body">
-              <!-- Rendered by js/table.js -->
-            </tbody>
-          </table>
-        </div>
+  /* ── Row: bubble + donut ── */
+  var row2HTML = '<div class="analytics-section-title">Distribution & Engagement</div>' +
+    '<div class="analytics-row-2">' + bubbleHTML + donutHTML + '</div>';
 
-        <!-- Bottom Panels -->
-        <div class="panels">
+  /* ── Segment bar cards ── */
+  var segmentsHTML = '<div class="analytics-section-title">Risk by Segment</div>' +
+    '<div class="radar-section">';
 
-          <!-- Left: SHAP Explainability -->
-          <div class="panel" id="shap-panel">
-            <h3 class="panel__title" id="shap-panel-title">
-              🧠 Why the model is concerned
-            </h3>
-            <div class="panel__subtitle" id="shap-panel-subtitle">
-              Select a patient row to see their risk explanation
-            </div>
-            <div id="shap-panel-content">
-              <div class="shap-summary shap-placeholder">
-                Click a patient row above to load their explanation.
-              </div>
-            </div>
-          </div>
+  /* icons injected via SVG after render */
+  var icons = [null,null,null,null,null,null,null,null];
+  EnaraApp.SEGMENTS.slice(0, 8).forEach(function(seg, i) {
+    var rows = seg.items.map(function(item) {
+      var color = item.p >= 40 ? 'var(--color-danger)' :
+                  item.p >= 30 ? 'var(--color-warning)' :
+                  item.p >= 20 ? 'var(--color-caution)' : 'var(--color-success)';
+      return '<div class="seg-row">' +
+        '<div class="seg-label">' + item.l + '</div>' +
+        '<div class="seg-track"><div class="seg-fill" style="background:' + color + '" data-pct="' + item.p + '"></div></div>' +
+        '<div class="seg-pct" style="color:' + color + '">' + item.p + '%</div>' +
+      '</div>';
+    }).join('');
+    segmentsHTML += '<div class="segment-card">' +
+      '<div class="segment-card__title" data-seg-icon="' + i + '">' + seg.title + '</div>' +
+      rows + '</div>';
+  });
+  segmentsHTML += '</div>';
 
-          <!-- Right: Distribution + Trend + Outreach + Effectiveness -->
-          <div class="panel">
-            <h3 class="panel__title">📊 Risk Distribution</h3>
-            <div class="panel__subtitle">1,247 active patients by dropout probability</div>
-            <div id="dist-bars"><!-- Rendered by js/charts.js --></div>
+  container.innerHTML = headerHTML + summaryHTML + insightHTML + heatmapHTML + row2HTML + segmentsHTML;
 
-            <div class="mt-lg">
-              <h3 class="panel__title">📈 High-Risk Trend (8 weeks)</h3>
-              <div class="trend-chart" id="trend-chart"></div>
-              <div class="trend-labels" id="trend-labels"></div>
-            </div>
 
-            <div class="mt-lg">
-              <h3 class="panel__title">📋 Outreach Plan</h3>
-              <div class="panel__subtitle">Based on this week's predictions</div>
-              <div class="outreach-item outreach-item--critical">
-                📞 <div><strong>12 critical</strong> — Call within 48h</div>
-              </div>
-              <div class="outreach-item outreach-item--high">
-                🩺 <div><strong>26 high-risk</strong> — Nutritionist outreach this week</div>
-              </div>
-              <div class="outreach-item outreach-item--medium">
-                💬 <div><strong>58 medium</strong> — Automated check-in message</div>
-              </div>
-              <div class="outreach-item outreach-item--low">
-                ✅ <div><strong>1,151 low</strong> — Standard follow-up</div>
-              </div>
-            </div>
+  /* Inject SVG icons into analytics summary bar */
+  requestAnimationFrame(function() {
+    var I = window.EnaraIcons;
+    if (!I) return;
+    var dangerEl = document.getElementById('asb-icon-danger');
+    var warnEl   = document.getElementById('asb-icon-warn');
+    var succEl   = document.getElementById('asb-icon-succ');
+    var primEl   = document.getElementById('asb-icon-prim');
+    if (dangerEl) dangerEl.innerHTML = I.alert;
+    if (warnEl)   warnEl.innerHTML   = I.engagement;
+    if (succEl)   succEl.innerHTML   = I.checkCircle;
+    if (primEl)   primEl.innerHTML   = I.analytics;
 
-            <div class="mt-lg">
-              <h3 class="panel__title">✨ Intervention Effectiveness</h3>
-              <div class="effectiveness-grid">
-                <div class="effectiveness-card">
-                  <div class="effectiveness-card__value effectiveness-card__value--primary">84</div>
-                  <div class="effectiveness-card__label">Contacted</div>
-                </div>
-                <div class="effectiveness-card">
-                  <div class="effectiveness-card__value effectiveness-card__value--success">61</div>
-                  <div class="effectiveness-card__label">Re-Engaged</div>
-                </div>
-                <div class="effectiveness-card">
-                  <div class="effectiveness-card__value effectiveness-card__value--secondary">23</div>
-                  <div class="effectiveness-card__label">Follow-Up</div>
-                </div>
-                <div class="effectiveness-card">
-                  <div class="effectiveness-card__value effectiveness-card__value--primary-dark">78%</div>
-                  <div class="effectiveness-card__label">Retained 30d</div>
-                </div>
-              </div>
-            </div>
-          </div>
+    /* Segment card icons */
+    var segIcons = [I.ageGroup, I.insurer, I.medication, I.modality, I.location, I.clock, I.gender, I.engagement, I.clinic];
+    container.querySelectorAll('[data-seg-icon]').forEach(function(el) {
+      var idx = parseInt(el.getAttribute('data-seg-icon'));
+      if (segIcons[idx]) {
+        var span = document.createElement('span');
+        span.className = 'seg-title-icon';
+        span.innerHTML = segIcons[idx];
+        el.insertBefore(span, el.firstChild);
+      }
+    });
+  });
 
-        </div><!-- /.panels -->
-      </div><!-- /#view-operations -->
-
-      <!-- ================================================
-           ANALYTICS VIEW
-           ================================================ -->
-      <div class="view" id="view-analytics">
-        <div id="analytics-grid">
-          <!-- Rendered by js/analytics.js -->
-        </div>
-      </div>
-
-      <!-- ================================================
-           FAIRNESS VIEW
-           ================================================ -->
-      <div class="view" id="view-fairness">
-        <!-- Rendered by js/fairness.js -->
-      </div><!-- /#view-fairness -->
-
-    </div><!-- /.content -->
-  </div><!-- /.main -->
-
-  <!-- ====================================================
-       DRAWER (Slide-in Panel)
-       Appears when a patient row is clicked.
-       ==================================================== -->
-  <div class="drawer-overlay" id="drawer-overlay"></div>
-  <div class="drawer" id="drawer-panel">
-    <div class="drawer__header">
-      <div class="drawer__header-info">
-        <h2 class="drawer__title">🧠 <span id="drawer-title">Why the model is concerned</span></h2>
-        <div class="drawer__subtitle" id="drawer-subtitle"></div>
-      </div>
-      <button class="drawer__close" id="drawer-close">✕</button>
-    </div>
-    <div class="drawer__body" id="drawer-body">
-      <!-- Populated dynamically by js/drawer.js -->
-    </div>
-  </div>
-
-  <!-- ====================================================
-       JAVASCRIPT (load order matters)
-       ==================================================== -->
-  <script src="js/data.js"></script>
-  <script src="js/kpi.js"></script>
-  <script src="js/table.js"></script>
-  <script src="js/filters.js"></script>
-  <script src="js/drawer.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/analytics.js"></script>
-  <script src="js/fairness.js"></script>
-  <script src="js/views.js"></script>
-  <script src="js/app.js"></script>
-
-</body>
-</html>
+  /* Segment bar animation triggered by EnaraApp.animateSegBars() — called from views.js */
+};

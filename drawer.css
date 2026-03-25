@@ -1,0 +1,97 @@
+/* ==========================================================
+   DESIGN TOKENS v2
+   Enara Health brand palette, spacing, and visual effects.
+   Source: Extracted from enarahealth.com production CSS.
+   ========================================================== */
+
+:root {
+  /* --- Brand Colors --- */
+  --color-primary:        #389FBA;
+  --color-primary-dark:   #1A667A;
+  --color-primary-darker: #0F3D4D;
+  --color-secondary:      #AF77BE;
+  --color-accent:         #FF7B00;
+
+  /* --- Text --- */
+  --color-text:           #1E1E1E;
+  --color-text-secondary: #4A5568;
+  --color-text-muted:     #718096;
+  --color-text-light:     #A0AEC0;
+
+  /* --- Backgrounds --- */
+  --color-bg:             #F0F4F8;
+  --color-bg-mint:        #E6F7F7;
+  --color-card:           #FFFFFF;
+  --color-border:         #E2E8F0;
+  --color-border-light:   #EDF2F7;
+
+  /* --- Semantic: Risk --- */
+  --color-danger:         #E53E3E;
+  --color-danger-light:   #FFF5F5;
+  --color-warning:        #DD6B20;
+  --color-warning-light:  #FFFAF0;
+  --color-caution:        #D69E2E;
+  --color-caution-light:  #FEFCBF;
+  --color-success:        #38A169;
+  --color-success-light:  #F0FFF4;
+
+  /* --- Semantic: Status --- */
+  --color-info-light:     #EBF8FF;
+  --color-info:           #3182CE;
+  --color-purple-light:   #FAF5FF;
+  --color-purple:         #805AD5;
+  --color-neutral-light:  #F7FAFC;
+  --color-neutral:        #A0AEC0;
+
+  /* --- Accents --- */
+  --color-mint:           #30FFC1;
+  --color-yellow:         #FFE24C;
+  --color-light-blue:     #7BDBFF;
+
+  /* --- Gradients --- */
+  --grad-primary:   linear-gradient(135deg, #389FBA, #1A667A);
+  --grad-danger:    linear-gradient(135deg, #FC8181, #E53E3E);
+  --grad-warning:   linear-gradient(135deg, #FBD38D, #DD6B20);
+  --grad-success:   linear-gradient(135deg, #68D391, #38A169);
+  --grad-sidebar:   linear-gradient(180deg, #0F3D4D 0%, #1A667A 100%);
+  --grad-hero:      linear-gradient(135deg, #1A667A, #389FBA);
+  --grad-glass:     linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+
+  /* --- Layout --- */
+  --sidebar-width:  232px;
+  --topbar-height:  56px;
+
+  /* --- Spacing --- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+
+  /* --- Radius --- */
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-xs:   4px;
+  --radius-pill: 100px;
+  --radius-full: 50%;
+
+  /* --- Shadows --- */
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06);
+  --shadow:      0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 20px rgba(56,159,186,0.15);
+
+  /* --- Typography --- */
+  --font-family: 'Outfit', sans-serif;
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  /* --- Transition --- */
+  --ease:        0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
