@@ -1,0 +1,79 @@
+/* ==========================================================
+   UTILITIES v2
+   Animations, responsive, and helper classes.
+   ========================================================== */
+
+/* --- Fade In (staggered) --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.35s ease both; }
+
+/* --- Slide In from Right --- */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in { animation: slideInRight 0.3s ease both; }
+
+/* --- Scale In --- */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.scale-in { animation: scaleIn 0.25s ease both; }
+
+/* --- Pulse (live indicator) --- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* --- Spacing --- */
+.mt-lg  { margin-top: 18px; }
+.mb-md  { margin-bottom: 16px; }
+
+/* --- Text --- */
+.text-center    { text-align: center; }
+.text-muted     { color: var(--color-text-light); }
+.text-disclaimer {
+  font-size: 0.67rem;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin-top: var(--space-sm);
+}
+
+/* --- Table Column --- */
+.col-avatar { width: 34px; }
+
+/* --- View Headings --- */
+.view-heading {
+  font-size: 1.1rem;
+  font-weight: var(--fw-semibold);
+  margin-bottom: 14px;
+}
+.view-heading--tight { margin-bottom: 4px; }
+.view-description {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 18px;
+}
+
+/* --- SHAP Placeholder --- */
+.shap-placeholder {
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1100px) {
+  .panels { grid-template-columns: 1fr; }
+  .analytics-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .effectiveness-grid { grid-template-columns: repeat(2, 1fr); }
+}

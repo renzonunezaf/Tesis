@@ -1,0 +1,79 @@
+/* ==========================================================
+   ANALYTICS VIEW v2
+   Population risk segmentation with animated bars.
+   ========================================================== */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.analytics-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--ease);
+}
+.analytics-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.analytics-card__title {
+  font-size: 0.85rem;
+  font-weight: var(--fw-semibold);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.segment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.78rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.segment-row:last-child { border-bottom: none; }
+
+.segment-label {
+  width: 95px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: var(--fw-medium);
+}
+
+.segment-track {
+  flex: 1;
+  height: 8px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.segment-fill {
+  height: 100%;
+  border-radius: var(--radius-xs);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.segment-pct {
+  width: 38px;
+  text-align: right;
+  font-weight: var(--fw-bold);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1100px) {
+  .analytics-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .analytics-grid { grid-template-columns: 1fr; }
+}
