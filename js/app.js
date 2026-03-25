@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   EnaraApp.renderDistribution();
   EnaraApp.renderTrend();
   EnaraApp.renderAnalytics();
+  EnaraApp.renderFairness();
 
   /* Sort and render patient table */
   EnaraApp.sortPatients();

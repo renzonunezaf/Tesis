@@ -238,10 +238,7 @@
            ANALYTICS VIEW
            ================================================ -->
       <div class="view" id="view-analytics">
-        <h2 class="view-heading">
-          Population Risk Insights
-        </h2>
-        <div class="analytics-grid" id="analytics-grid">
+        <div id="analytics-grid">
           <!-- Rendered by js/analytics.js -->
         </div>
       </div>
@@ -250,71 +247,7 @@
            FAIRNESS VIEW
            ================================================ -->
       <div class="view" id="view-fairness">
-        <h2 class="view-heading view-heading--tight">
-          Model Fairness Review
-        </h2>
-        <p class="view-description">
-          Subgroup performance monitoring to ensure equitable predictions
-          across patient populations.
-        </p>
-
-        <div class="panels mb-md">
-          <div class="panel">
-            <h3 class="panel__title">By Age Group</h3>
-            <table class="fairness-table">
-              <thead><tr><th>Group</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead>
-              <tbody>
-                <tr><td>18–29</td><td class="fairness-good">0.89</td><td class="fairness-good">0.84</td><td class="fairness-good">0.06</td><td>287</td></tr>
-                <tr><td>30–44</td><td class="fairness-good">0.91</td><td class="fairness-good">0.87</td><td class="fairness-good">0.05</td><td>412</td></tr>
-                <tr><td>45–59</td><td class="fairness-good">0.88</td><td class="fairness-good">0.86</td><td class="fairness-good">0.07</td><td>356</td></tr>
-                <tr><td>60+</td><td class="fairness-warn">0.79</td><td class="fairness-good">0.82</td><td class="fairness-warn">0.11</td><td>192</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="panel">
-            <h3 class="panel__title">By Sex</h3>
-            <table class="fairness-table">
-              <thead><tr><th>Sex</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead>
-              <tbody>
-                <tr><td>Female</td><td class="fairness-good">0.90</td><td class="fairness-good">0.86</td><td class="fairness-good">0.06</td><td>741</td></tr>
-                <tr><td>Male</td><td class="fairness-good">0.87</td><td class="fairness-good">0.85</td><td class="fairness-good">0.07</td><td>506</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="panels mb-md">
-          <div class="panel">
-            <h3 class="panel__title">By Region</h3>
-            <table class="fairness-table">
-              <thead><tr><th>Region</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead>
-              <tbody>
-                <tr><td>West Coast</td><td class="fairness-good">0.91</td><td class="fairness-good">0.88</td><td class="fairness-good">0.05</td><td>389</td></tr>
-                <tr><td>East Coast</td><td class="fairness-good">0.89</td><td class="fairness-good">0.85</td><td class="fairness-good">0.06</td><td>342</td></tr>
-                <tr><td>Midwest</td><td class="fairness-good">0.87</td><td class="fairness-good">0.84</td><td class="fairness-good">0.07</td><td>284</td></tr>
-                <tr><td>South</td><td class="fairness-warn">0.82</td><td class="fairness-warn">0.79</td><td class="fairness-warn">0.10</td><td>232</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="panel">
-            <h3 class="panel__title">By Race / Ethnicity</h3>
-            <div class="panel__subtitle">Aggregated auditing only — not used operationally</div>
-            <table class="fairness-table">
-              <thead><tr><th>Group</th><th>Recall</th><th>Precision</th><th>FPR</th><th>N</th></tr></thead>
-              <tbody>
-                <tr><td>White</td><td class="fairness-good">0.90</td><td class="fairness-good">0.87</td><td class="fairness-good">0.05</td><td>498</td></tr>
-                <tr><td>Hispanic/Latino</td><td class="fairness-good">0.88</td><td class="fairness-good">0.84</td><td class="fairness-good">0.07</td><td>312</td></tr>
-                <tr><td>Black/African Am.</td><td class="fairness-warn">0.83</td><td class="fairness-warn">0.80</td><td class="fairness-warn">0.09</td><td>256</td></tr>
-                <tr><td>Asian</td><td class="fairness-good">0.91</td><td class="fairness-good">0.88</td><td class="fairness-good">0.05</td><td>118</td></tr>
-                <tr><td>Other/Not Disc.</td><td class="fairness-good">0.86</td><td class="fairness-good">0.83</td><td class="fairness-good">0.08</td><td>63</td></tr>
-              </tbody>
-            </table>
-            <p class="text-disclaimer">
-              ⚠️ Race/ethnicity is used exclusively for fairness auditing.
-              Never surfaced in operational views nor used as a prediction feature.
-            </p>
-          </div>
-        </div>
+        <!-- Rendered by js/fairness.js -->
       </div><!-- /#view-fairness -->
 
     </div><!-- /.content -->
@@ -348,6 +281,7 @@
   <script src="js/drawer.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/analytics.js"></script>
+  <script src="js/fairness.js"></script>
   <script src="js/views.js"></script>
   <script src="js/app.js"></script>
 
