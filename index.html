@@ -134,6 +134,34 @@ td{padding:9px 11px;font-size:.8rem;vertical-align:middle}
 .fi{animation:fadeIn .25s ease both}
 @media(max-width:1400px){.kpi-row{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:1100px){.panels,.ag{grid-template-columns:1fr}}
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:92vw;background:var(--card);z-index:100;box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{transform:translateX(0)}
+.drawer-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;background:var(--bg-mint)}
+.drawer-head-info{flex:1}
+.drawer-head h2{font-size:1rem;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:8px}
+.drawer-head .d-sub{font-size:.73rem;color:var(--text-m);line-height:1.5}
+.drawer-close{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-m);transition:var(--tr);flex-shrink:0;margin-left:12px}
+.drawer-close:hover{background:var(--bg);color:var(--text)}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px 32px}
+.drawer-patient{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border-l)}
+.drawer-patient .dp-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0}
+.drawer-patient .dp-name{font-size:1.05rem;font-weight:600}
+.drawer-patient .dp-meta{font-size:.73rem;color:var(--text-m);line-height:1.5}
+.drawer-risk-row{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:12px 16px;border-radius:var(--rs);background:var(--bg)}
+.drawer-risk-row .dr-score{font-size:1.6rem;font-weight:700;flex-shrink:0}
+.drawer-risk-row .dr-details{flex:1}
+.drawer-risk-row .dr-bar{height:6px;background:#ddd;border-radius:3px;margin-top:4px}
+.drawer-risk-row .dr-barfill{height:100%;border-radius:3px}
+.drawer-section{margin-bottom:18px}
+.drawer-section h4{font-size:.82rem;font-weight:600;margin-bottom:8px;color:var(--text-s)}
+.drawer-action{margin-top:6px;padding:14px 18px;border-radius:var(--rs);background:var(--primary);color:#fff;text-align:center;font-weight:600;font-size:.88rem;cursor:pointer;transition:var(--tr);border:none;width:100%;font-family:inherit}
+.drawer-action:hover{background:var(--primary-dark)}
+.drawer-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.drawer-tags .dt{padding:4px 10px;border-radius:4px;font-size:.72rem;font-weight:500}
+.dt-n{background:#FDECEC;color:#9B1C1C}.dt-p{background:#DEF7EC;color:#03543F}
 </style>
 </head>
 <body>
@@ -276,6 +304,19 @@ td{padding:9px 11px;font-size:.8rem;vertical-align:middle}
 </div>
 </div>
 
+<!-- DRAWER -->
+<div class="drawer-overlay" id="d-overlay"></div>
+<div class="drawer" id="d-drawer">
+  <div class="drawer-head">
+    <div class="drawer-head-info">
+      <h2>🧠 <span id="d-title">Why the model is concerned</span></h2>
+      <div class="d-sub" id="d-sub"></div>
+    </div>
+    <button class="drawer-close" id="d-close">✕</button>
+  </div>
+  <div class="drawer-body" id="d-body"></div>
+</div>
+
 <script>
 const P=[
 {id:'P-4521',nm:'Maria Rodriguez',ini:'MR',sex:'F',age:42,st:'CA',ins:'Aetna',wk:14,mod:'Virtual',med:'GLP-1 Supported',cli:'Enara West LA',own:'Maria Lopez, RD',risk:94,rl:'Critical',pri:'Critical',sts:'Pending',dw:8,ds:18,la:'Mar 6',eng:'Low',fac:[{t:'3 of 5 appointments canceled',v:.24,tp:'n'},{t:'Weight stagnant 4+ weeks',v:.19,tp:'n'},{t:'No app login for 18 days',v:.16,tp:'n'},{t:'Declined medication adjustment',v:.08,tp:'n'},{t:'14 weeks in program',v:-.05,tp:'p'},{t:'Initial BMI in range',v:-.03,tp:'p'}],sum:'Maria has missed most recent appointments, her weight has stalled, and she hasn\'t logged into the app in over two weeks. She also declined a recent medication adjustment. The model sees a pattern consistent with imminent dropout.',act:'Call patient'},
@@ -343,14 +384,60 @@ document.querySelectorAll('.fbar select,.fbar input').forEach(e=>e.addEventListe
 document.getElementById('fx').addEventListener('click',()=>{document.querySelectorAll('.fbar select').forEach(s=>s.value='');document.getElementById('fs').value='';af()});
 
 // SHAP
+function openDrawer(){document.getElementById('d-overlay').classList.add('open');document.getElementById('d-drawer').classList.add('open')}
+function closeDrawer(){document.getElementById('d-overlay').classList.remove('open');document.getElementById('d-drawer').classList.remove('open')}
+document.getElementById('d-overlay').addEventListener('click',closeDrawer);
+document.getElementById('d-close').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
 function rshap(id){
 const p=P.find(x=>x.id===id);if(!p)return;
+const cl=rc(p.risk);
 const mx=Math.max(...p.fac.map(f=>Math.abs(f.v)));
 const bars=p.fac.map(f=>{const pct=(Math.abs(f.v)/mx)*42;const neg=f.v>0;const bh=neg?`<div class="sh-val sh-neg" style="width:${pct}%"></div>`:`<div class="sh-val sh-pos" style="width:${pct}%"></div>`;
 return`<div class="sh-row"><div class="sh-lb">${f.t}</div><div class="sh-trk"><div class="sh-mid"></div>${bh}</div><div class="sh-n ${neg?'neg':'pos'}">${f.v>0?'+':''}${f.v.toFixed(2)}</div></div>`}).join('');
-document.getElementById('sp-c').innerHTML=`<div class="sh-sum fi">${p.sum}</div><div class="fi" style="animation-delay:.05s">${bars}</div><div class="sh-note fi" style="animation-delay:.1s">⚠️ These factors influenced the model prediction. They are not direct clinical causes. Clinical judgment should always guide intervention decisions.</div>`;
+const tags=p.fac.map(f=>`<span class="dt ${f.tp==='n'?'dt-n':'dt-p'}">${f.t}</span>`).join('');
+
+document.getElementById('d-title').textContent='Why the model is concerned';
+document.getElementById('d-sub').textContent=p.id+' · '+p.risk+'% dropout risk · '+p.med+' · '+p.mod;
+document.getElementById('d-body').innerHTML=`
+<div class="drawer-patient fi">
+  <div class="dp-av" style="background:${cl}">${p.ini}</div>
+  <div><div class="dp-name">${p.nm}</div><div class="dp-meta">${p.id} · ${p.age}y/o · ${p.sex==='F'?'Female':'Male'} · ${p.st}<br>${p.ins} · ${p.cli} · ${p.wk} weeks in program<br>Engagement: <strong>${p.eng}</strong> · Assigned: <strong>${p.own}</strong></div></div>
+</div>
+<div class="drawer-risk-row fi" style="animation-delay:.05s">
+  <div class="dr-score" style="color:${cl}">${p.risk}%</div>
+  <div class="dr-details">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span class="bdg ${RC[p.rl]}">${p.rl} Risk</span><span class="bdg ${RC[p.pri]}">${p.pri} Priority</span></div>
+    <div style="font-size:.75rem;color:var(--text-m)">Expected dropout window: ~${p.dw} days · Last appointment: ${p.la} · ${p.ds} days since last contact</div>
+    <div class="dr-bar" style="margin-top:6px"><div class="dr-barfill" style="width:${p.risk}%;background:${cl}"></div></div>
+  </div>
+</div>
+<div class="drawer-section fi" style="animation-delay:.08s">
+  <h4>Summary</h4>
+  <div class="sh-sum">${p.sum}</div>
+</div>
+<div class="drawer-section fi" style="animation-delay:.1s">
+  <h4>Risk & Protective Factors</h4>
+  <div class="drawer-tags">${tags}</div>
+</div>
+<div class="drawer-section fi" style="animation-delay:.13s">
+  <h4>SHAP Feature Contributions</h4>
+  <div style="font-size:.7rem;color:var(--text-m);margin-bottom:10px">Red = pushes toward dropout · Green = supports retention</div>
+  ${bars}
+</div>
+<div class="drawer-section fi" style="animation-delay:.16s">
+  <h4>Recommended Action</h4>
+  <button class="drawer-action">${p.act==='No action needed'?'✅ No action needed':'→ '+p.act}</button>
+</div>
+<div class="sh-note fi" style="animation-delay:.2s">⚠️ These factors influenced the model prediction. They are not direct clinical causes. Clinical judgment should always guide intervention decisions.</div>
+`;
+openDrawer();
+
+// Also update the bottom panel
+document.getElementById('sp-c').innerHTML=`<div class="sh-sum">${p.sum}</div><div style="margin-top:8px">${bars}</div>`;
 document.getElementById('sp-t').textContent='🧠 Why the model is concerned — '+p.nm;
-document.getElementById('sp-s').textContent=p.id+' · '+p.risk+'% risk · '+p.med+' · '+p.mod+' · '+p.cli;
+document.getElementById('sp-s').textContent=p.id+' · '+p.risk+'% risk · '+p.med+' · '+p.mod;
 }
 
 // Distribution
