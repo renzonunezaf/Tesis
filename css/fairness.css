@@ -239,3 +239,22 @@
 @media (max-width: 900px) {
   .fairness-gauges { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Badge status dots (replaces emoji prefixes) */
+.fbadge { position: relative; padding-left: 20px; }
+.fbadge::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.fbadge--ok::before   { background: var(--color-success); }
+.fbadge--warn::before { background: var(--color-warning); }
+.fbadge--info::before { background: var(--color-primary); }
+
+/* Disclaimer flex alignment */
+.fairness-disclaimer { align-items: flex-start; }

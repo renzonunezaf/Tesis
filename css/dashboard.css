@@ -248,3 +248,9 @@
   letter-spacing: 0.3px;
   margin-top: 4px;
 }
+
+/* Trend dot — starts hidden, animated by EnaraApp.animateTrend() */
+.trend-dot {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}

@@ -27,14 +27,7 @@ EnaraApp.renderDistribution = function() {
     '</div>';
   }).join('');
 
-  /* Animate bar widths after render */
-  requestAnimationFrame(function() {
-    setTimeout(function() {
-      document.querySelectorAll('.dist-fill').forEach(function(bar) {
-        bar.style.width = bar.dataset.width;
-      });
-    }, 200);
-  });
+  /* Animation triggered by EnaraApp.animateDistBars() — called from views.js on each switch */
 };
 
 /* ----- Trend: SVG area chart with gradient fill ----- */
@@ -69,7 +62,7 @@ EnaraApp.renderTrend = function() {
     var r = isLast ? 5 : 3.5;
     return '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="' + color + '" ' +
       'class="trend-dot" data-tip="' + p.d.week + ': ' + p.d.value + ' patients">' +
-      '<animate attributeName="r" from="0" to="' + r + '" dur="0.4s" begin="' + (0.3 + i * 0.08) + 's" fill="freeze"/>' +
+      /* dot r set directly */ 
       '</circle>' +
       /* Value label for last point */
       (isLast ? '<text x="' + p.x + '" y="' + (p.y - 10) + '" text-anchor="middle" ' +
@@ -96,10 +89,8 @@ EnaraApp.renderTrend = function() {
       gridLines +
       '<path d="' + areaPath + '" fill="url(#areaGrad)" class="trend-area"/>' +
       '<path d="' + linePath + '" fill="none" stroke="var(--color-primary)" stroke-width="2.5" ' +
-        'stroke-linecap="round" stroke-linejoin="round" class="trend-line" ' +
-        'stroke-dasharray="600" stroke-dashoffset="600">' +
-        '<animate attributeName="stroke-dashoffset" from="600" to="0" dur="1.2s" fill="freeze"/>' +
-      '</path>' +
+        'stroke-linecap="round" stroke-linejoin="round" class="trend-line" id="trend-line-path" ' +
+        'stroke-dasharray="600" stroke-dashoffset="600"/>' +
       dots +
     '</svg>';
 
@@ -108,4 +99,27 @@ EnaraApp.renderTrend = function() {
   labelsEl.innerHTML = data.map(function(d) {
     return '<span>' + d.week + '</span>';
   }).join('');
+};
+
+/* Re-trigger trend line animation (called from views.js) */
+EnaraApp.animateTrend = function() {
+  var line = document.getElementById('trend-line-path');
+  if (!line) return;
+  line.style.transition = 'none';
+  line.style.strokeDashoffset = '600';
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      line.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+      line.style.strokeDashoffset = '0';
+    });
+  });
+
+  /* Fade in dots */
+  document.querySelectorAll('.trend-dot').forEach(function(dot, i) {
+    dot.style.opacity = '0';
+    setTimeout(function() {
+      dot.style.transition = 'opacity 0.3s ease';
+      dot.style.opacity = '1';
+    }, 300 + i * 80);
+  });
 };

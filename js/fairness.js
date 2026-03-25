@@ -8,7 +8,7 @@ EnaraApp.renderFairness = function() {
   /* ─── Data ─── */
   var groups = {
     age: {
-      icon: '👤', title: 'By Age Group', sub: '1,247 patients across 4 cohorts',
+      icon: 'userAge', title: 'By Age Group', sub: '1,247 patients across 4 cohorts',
       rows: [
         { label: '18–29', recall: 0.89, precision: 0.84, fpr: 0.06, n: 287 },
         { label: '30–44', recall: 0.91, precision: 0.87, fpr: 0.05, n: 412 },
@@ -17,14 +17,14 @@ EnaraApp.renderFairness = function() {
       ]
     },
     sex: {
-      icon: '⚧', title: 'By Sex', sub: 'Female / Male split',
+      icon: 'sexIcon', title: 'By Sex', sub: 'Female / Male split',
       rows: [
         { label: 'Female', recall: 0.90, precision: 0.86, fpr: 0.06, n: 741 },
         { label: 'Male',   recall: 0.87, precision: 0.85, fpr: 0.07, n: 506 }
       ]
     },
     region: {
-      icon: '🗺️', title: 'By Region', sub: '4 geographic zones',
+      icon: 'globe', title: 'By Region', sub: '4 geographic zones',
       rows: [
         { label: 'West Coast', recall: 0.91, precision: 0.88, fpr: 0.05, n: 389 },
         { label: 'East Coast', recall: 0.89, precision: 0.85, fpr: 0.06, n: 342 },
@@ -33,7 +33,7 @@ EnaraApp.renderFairness = function() {
       ]
     },
     ethnicity: {
-      icon: '🌍', title: 'By Race / Ethnicity', sub: 'Audit-only · not used operationally',
+      icon: 'diversity', title: 'By Race / Ethnicity', sub: 'Audit-only · not used operationally',
       rows: [
         { label: 'White',            recall: 0.90, precision: 0.87, fpr: 0.05, n: 498 },
         { label: 'Hispanic/Latino',  recall: 0.88, precision: 0.84, fpr: 0.07, n: 312 },
@@ -79,7 +79,7 @@ EnaraApp.renderFairness = function() {
     }).join('');
     return '<div class="fairness-group-card">' +
       '<div class="fgc-header">' +
-        '<div class="fgc-icon">' + g.icon + '</div>' +
+        '<div class="fgc-icon" data-fgc-icon="' + g.icon + '"></div>' +
         '<div><div class="fgc-title">' + g.title + '</div><div class="fgc-sub">' + g.sub + '</div></div>' +
       '</div>' +
       '<div class="fgc-rows">' + rows + '</div>' +
@@ -159,7 +159,7 @@ EnaraApp.renderFairness = function() {
     '</div>';
 
   var disclaimerHTML =
-    '<div class="fairness-disclaimer">⚠️ <div><strong>Note on Race/Ethnicity:</strong> This dimension is used exclusively for fairness auditing. It is never surfaced in operational views nor used as a prediction feature. All subgroup comparisons are for internal model governance only.</div></div>';
+    '<div class="fairness-disclaimer"><span class="disclaimer-icon"></span><div><strong>Note on Race/Ethnicity:</strong> This dimension is used exclusively for fairness auditing. It is never surfaced in operational views nor used as a prediction feature. All subgroup comparisons are for internal model governance only.</div></div>';
 
   var groupRowHTML =
     '<div class="fairness-section-title">Subgroup Performance</div>' +
@@ -196,22 +196,27 @@ EnaraApp.renderFairness = function() {
       '</div>' +
     '</div>' +
     '<div class="fairness-badge-row">' +
-      '<div class="fbadge fbadge--ok">✓ Age parity: within tolerance</div>' +
-      '<div class="fbadge fbadge--ok">✓ Sex parity: within tolerance</div>' +
-      '<div class="fbadge fbadge--warn">⚠ Region: South gap detected</div>' +
-      '<div class="fbadge fbadge--warn">⚠ Race/Eth: Black/Af. Am. gap</div>' +
+      '<div class="fbadge fbadge--ok">Age parity: within tolerance</div>' +
+      '<div class="fbadge fbadge--ok">Sex parity: within tolerance</div>' +
+      '<div class="fbadge fbadge--warn">Region: South gap detected</div>' +
+      '<div class="fbadge fbadge--warn">Race/Eth: Black/Af. Am. gap</div>' +
       '<div class="fbadge fbadge--info">ℹ Audit only · not operational</div>' +
     '</div>';
 
   container.innerHTML = headerHTML + gaugesHTML + disclaimerHTML + groupRowHTML + divergHTML;
 
-  /* Animate bars */
+
+  /* Inject SVG icons into fairness group cards */
   requestAnimationFrame(function() {
-    setTimeout(function() {
-      container.querySelectorAll('.fgc-metric-bar-fill').forEach(function(el) {
-        var pct = el.getAttribute('data-pct');
-        if (pct) el.style.width = pct + '%';
-      });
-    }, 80);
+    var I = window.EnaraIcons;
+    if (!I) return;
+    container.querySelectorAll('[data-fgc-icon]').forEach(function(el) {
+      var key = el.getAttribute('data-fgc-icon');
+      if (I[key]) el.innerHTML = I[key];
+    });
+    var discIcon = container.querySelector('.disclaimer-icon');
+    if (discIcon) discIcon.innerHTML = I.alert;
   });
+
+  /* Bar animation triggered by EnaraApp.animateFairnessBars() — called from views.js */
 };

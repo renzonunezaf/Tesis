@@ -16,18 +16,18 @@ EnaraApp.renderAnalytics = function() {
 
   /* ── Summary bar ── */
   var summaryHTML = '<div class="analytics-summary-bar">' +
-    '<div class="asb-card"><div class="asb-icon asb-icon--danger">🔴</div><div><div class="asb-value" style="color:var(--color-danger)">45%</div><div class="asb-label">Highest risk segment<br>0–4 wk program stage</div></div></div>' +
-    '<div class="asb-card"><div class="asb-icon asb-icon--warning">📊</div><div><div class="asb-value" style="color:var(--color-warning)">54%</div><div class="asb-label">Low-engagement dropout<br>vs 12% high-engagement</div></div></div>' +
-    '<div class="asb-card"><div class="asb-icon asb-icon--success">✅</div><div><div class="asb-value" style="color:var(--color-success)">21%</div><div class="asb-label">Lowest risk segment<br>Clinic-linked modality</div></div></div>' +
-    '<div class="asb-card"><div class="asb-icon asb-icon--primary">💡</div><div><div class="asb-value" style="color:var(--color-primary)">9</div><div class="asb-label">Risk segments analyzed<br>across 6 dimensions</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--danger" id="asb-icon-danger"></div><div><div class="asb-value" style="color:var(--color-danger)">45%</div><div class="asb-label">Highest risk segment<br>0–4 wk program stage</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--warning" id="asb-icon-warn"></div><div><div class="asb-value" style="color:var(--color-warning)">54%</div><div class="asb-label">Low-engagement dropout<br>vs 12% high-engagement</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--success" id="asb-icon-succ"></div><div><div class="asb-value" style="color:var(--color-success)">21%</div><div class="asb-label">Lowest risk segment<br>Clinic-linked modality</div></div></div>' +
+    '<div class="asb-card"><div class="asb-icon asb-icon--primary" id="asb-icon-prim"></div><div><div class="asb-value" style="color:var(--color-primary)">9</div><div class="asb-label">Risk segments analyzed<br>across 6 dimensions</div></div></div>' +
   '</div>';
 
   /* ── Insight callouts ── */
   var insightHTML = '<div class="analytics-section-title">Key Takeaways</div>' +
     '<div class="insight-strip">' +
-      '<div class="insight-card insight-card--danger"><div class="insight-card__label">⚠ Highest Risk</div><div class="insight-card__text">Patients in <strong>0–4 weeks</strong> of the program carry a <strong>45% dropout risk</strong>. Early engagement is the single strongest lever.</div></div>' +
-      '<div class="insight-card insight-card--warning"><div class="insight-card__label">📌 Watch Group</div><div class="insight-card__text"><strong>Low-engagement patients</strong> are 4.5× more likely to drop out than high-engagement ones (54% vs 12%).</div></div>' +
-      '<div class="insight-card insight-card--success"><div class="insight-card__label">✨ Bright Spot</div><div class="insight-card__text"><strong>GLP-1 supported</strong> patients and <strong>clinic-linked</strong> modality show consistently the lowest dropout risk.</div></div>' +
+      '<div class="insight-card insight-card--danger"><div class="insight-card__label">Highest Risk</div><div class="insight-card__text">Patients in <strong>0–4 weeks</strong> of the program carry a <strong>45% dropout risk</strong>. Early engagement is the single strongest lever.</div></div>' +
+      '<div class="insight-card insight-card--warning"><div class="insight-card__label">Watch Group</div><div class="insight-card__text"><strong>Low-engagement patients</strong> are 4.5× more likely to drop out than high-engagement ones (54% vs 12%).</div></div>' +
+      '<div class="insight-card insight-card--success"><div class="insight-card__label">Bright Spot</div><div class="insight-card__text"><strong>GLP-1 supported</strong> patients and <strong>clinic-linked</strong> modality show consistently the lowest dropout risk.</div></div>' +
     '</div>';
 
   /* ── Heatmap: Risk × Stage × Modality ── */
@@ -135,7 +135,8 @@ EnaraApp.renderAnalytics = function() {
   var segmentsHTML = '<div class="analytics-section-title">Risk by Segment</div>' +
     '<div class="radar-section">';
 
-  var icons = ['👥', '🏥', '💊', '📱', '🗺️', '⏱️', '⚧', '🤝'];
+  /* icons injected via SVG after render */
+  var icons = [null,null,null,null,null,null,null,null];
   EnaraApp.SEGMENTS.slice(0, 8).forEach(function(seg, i) {
     var rows = seg.items.map(function(item) {
       var color = item.p >= 40 ? 'var(--color-danger)' :
@@ -148,20 +149,39 @@ EnaraApp.renderAnalytics = function() {
       '</div>';
     }).join('');
     segmentsHTML += '<div class="segment-card">' +
-      '<div class="segment-card__title"><span>' + (icons[i] || '📊') + '</span>' + seg.title + '</div>' +
+      '<div class="segment-card__title" data-seg-icon="' + i + '">' + seg.title + '</div>' +
       rows + '</div>';
   });
   segmentsHTML += '</div>';
 
   container.innerHTML = headerHTML + summaryHTML + insightHTML + heatmapHTML + row2HTML + segmentsHTML;
 
-  /* Animate segment bars */
+
+  /* Inject SVG icons into analytics summary bar */
   requestAnimationFrame(function() {
-    setTimeout(function() {
-      container.querySelectorAll('.seg-fill').forEach(function(el) {
-        var pct = el.getAttribute('data-pct');
-        if (pct) el.style.width = pct + '%';
-      });
-    }, 80);
+    var I = window.EnaraIcons;
+    if (!I) return;
+    var dangerEl = document.getElementById('asb-icon-danger');
+    var warnEl   = document.getElementById('asb-icon-warn');
+    var succEl   = document.getElementById('asb-icon-succ');
+    var primEl   = document.getElementById('asb-icon-prim');
+    if (dangerEl) dangerEl.innerHTML = I.alert;
+    if (warnEl)   warnEl.innerHTML   = I.engagement;
+    if (succEl)   succEl.innerHTML   = I.checkCircle;
+    if (primEl)   primEl.innerHTML   = I.analytics;
+
+    /* Segment card icons */
+    var segIcons = [I.ageGroup, I.insurer, I.medication, I.modality, I.location, I.clock, I.gender, I.engagement, I.clinic];
+    container.querySelectorAll('[data-seg-icon]').forEach(function(el) {
+      var idx = parseInt(el.getAttribute('data-seg-icon'));
+      if (segIcons[idx]) {
+        var span = document.createElement('span');
+        span.className = 'seg-title-icon';
+        span.innerHTML = segIcons[idx];
+        el.insertBefore(span, el.firstChild);
+      }
+    });
   });
+
+  /* Segment bar animation triggered by EnaraApp.animateSegBars() — called from views.js */
 };

@@ -1,12 +1,12 @@
 /**
  * ==========================================================
  * APP MODULE
- * Application initialization. Loads all modules and performs
- * initial render.
+ * Initialization. Renders all components, then triggers
+ * animations for the default (operations) view.
  * ==========================================================
  */
 document.addEventListener('DOMContentLoaded', function() {
-  /* Render static components */
+  /* Render all components */
   EnaraApp.renderKPIs();
   EnaraApp.renderDistribution();
   EnaraApp.renderTrend();
@@ -22,4 +22,13 @@ document.addEventListener('DOMContentLoaded', function() {
   EnaraApp.initFilters();
   EnaraApp.initDrawer();
   EnaraApp.initViews();
+
+  /* Trigger animations for the initial view (operations) */
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      EnaraApp.animateKPIRings();
+      EnaraApp.animateDistBars();
+      EnaraApp.animateTrend();
+    });
+  });
 });
