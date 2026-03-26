@@ -1,0 +1,234 @@
+/* ==========================================================
+   INTERVENTION LOG VIEW
+   Chronological log of all patient interventions with
+   type indicators, outcomes, and filterable list.
+   ========================================================== */
+
+/* ── Log header ── */
+.log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+.log-header__title {
+  font-size: 1.1rem;
+  font-weight: var(--fw-semibold);
+}
+.log-header__count {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Log filters ── */
+.log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.log-filters select {
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  transition: all var(--ease);
+}
+.log-filters select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56,159,186,0.12);
+}
+
+/* ── Summary cards ── */
+.log-summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.log-stat {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  text-align: center;
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.log-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.log-stat__value {
+  font-size: 1.3rem;
+  font-weight: var(--fw-bold);
+}
+.log-stat__value--primary { color: var(--color-primary); }
+.log-stat__value--success { color: var(--color-success); }
+.log-stat__value--warning { color: var(--color-warning); }
+.log-stat__value--danger  { color: var(--color-danger); }
+.log-stat__value--muted   { color: var(--color-text-muted); }
+.log-stat__label {
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 4px;
+}
+
+/* ── Log entry cards ── */
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.log-entry {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: all var(--ease);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: logEntryIn 0.35s ease forwards;
+}
+.log-entry:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+@keyframes logEntryIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Left accent bar by type */
+.log-entry::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+.log-entry--phone::before       { background: var(--color-primary); }
+.log-entry--message::before     { background: var(--color-secondary); }
+.log-entry--visit::before       { background: var(--color-success); }
+.log-entry--auto::before        { background: var(--color-caution); }
+.log-entry--care-plan::before   { background: var(--color-info); }
+.log-entry--prior-auth::before  { background: var(--color-warning); }
+
+/* Type icon circle */
+.log-entry__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 0.85rem;
+}
+.log-entry__icon--phone       { background: var(--grad-primary); }
+.log-entry__icon--message     { background: linear-gradient(135deg, #AF77BE, #805AD5); }
+.log-entry__icon--visit       { background: var(--grad-success); }
+.log-entry__icon--auto        { background: linear-gradient(135deg, #D69E2E, #DD6B20); }
+.log-entry__icon--care-plan   { background: linear-gradient(135deg, #3182CE, #2B6CB0); }
+.log-entry__icon--prior-auth  { background: var(--grad-warning); }
+
+/* Content */
+.log-entry__content { flex: 1; min-width: 0; }
+.log-entry__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.log-entry__patient {
+  font-weight: var(--fw-semibold);
+  font-size: 0.85rem;
+}
+.log-entry__type {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+.log-entry__note {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.log-entry__by {
+  font-size: 0.68rem;
+  color: var(--color-text-light);
+  margin-top: 6px;
+}
+
+/* Right meta column */
+.log-entry__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+.log-entry__datetime {
+  font-size: 0.72rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+.log-entry__time {
+  font-size: 0.66rem;
+  color: var(--color-text-light);
+}
+
+/* Outcome pills */
+.log-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: var(--fw-medium);
+}
+.log-outcome--connected  { background: var(--color-success-light); color: var(--color-success); }
+.log-outcome--sent       { background: var(--color-info-light);    color: var(--color-info); }
+.log-outcome--read       { background: #F0FFF4;                    color: #38A169; }
+.log-outcome--delivered  { background: var(--color-bg-mint);       color: var(--color-primary); }
+.log-outcome--no-answer  { background: var(--color-warning-light); color: var(--color-warning); }
+.log-outcome--voicemail  { background: #FFFAF0;                    color: #DD6B20; }
+.log-outcome--unread     { background: var(--color-danger-light);  color: var(--color-danger); }
+.log-outcome--updated    { background: var(--color-info-light);    color: var(--color-info); }
+.log-outcome--in-progress{ background: #FEFCBF;                    color: var(--color-caution); }
+.log-outcome--completed  { background: var(--color-success-light); color: var(--color-success); }
+
+/* Risk at time mini badge */
+.log-risk-badge {
+  font-size: 0.64rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .log-summary { grid-template-columns: repeat(3, 1fr); }
+  .log-entry { flex-direction: column; }
+  .log-entry__meta { align-items: flex-start; flex-direction: row; gap: 8px; }
+}

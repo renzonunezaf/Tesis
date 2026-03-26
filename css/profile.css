@@ -1,0 +1,369 @@
+/* ==========================================================
+   PATIENT PROFILE VIEW
+   Full-page patient detail with weight trajectory,
+   appointment timeline, SHAP explanation, and engagement.
+   ========================================================== */
+
+/* ── Back navigation ── */
+.profile-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  transition: all var(--ease);
+  margin-bottom: var(--space-md);
+}
+.profile-back:hover {
+  background: var(--color-bg-mint);
+}
+
+/* ── Hero card ── */
+.profile-hero {
+  display: flex;
+  gap: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--color-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--space-lg);
+  align-items: flex-start;
+}
+
+.profile-hero__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-hero__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: var(--fw-bold);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+.profile-hero__avatar::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background: conic-gradient(from 0deg, transparent, currentColor) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
+}
+
+.profile-hero__info { min-width: 0; }
+.profile-hero__name {
+  font-size: 1.3rem;
+  font-weight: var(--fw-bold);
+  margin-bottom: 2px;
+}
+.profile-hero__id {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+.profile-hero__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-hero__right {
+  display: flex;
+  gap: var(--space-lg);
+  flex-shrink: 0;
+}
+
+/* ── Risk gauge (large) ── */
+.profile-gauge {
+  text-align: center;
+  position: relative;
+}
+.profile-gauge svg {
+  display: block;
+}
+.profile-gauge__label {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* ── Detail pills row ── */
+.profile-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.profile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+}
+.profile-pill__icon {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+.profile-pill strong { font-weight: var(--fw-semibold); color: var(--color-text); }
+
+/* ── Grid layout for sections ── */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+.profile-grid--full {
+  grid-column: 1 / -1;
+}
+
+/* ── Section card ── */
+.profile-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+.profile-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+.profile-card__title {
+  font-size: 0.9rem;
+  font-weight: var(--fw-semibold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-card__title svg { color: var(--color-primary); }
+.profile-card__badge {
+  font-size: 0.68rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-mint);
+  color: var(--color-primary-dark);
+  font-weight: var(--fw-semibold);
+}
+
+/* ── Weight trajectory chart ── */
+.weight-chart {
+  position: relative;
+  height: 200px;
+  overflow: visible;
+}
+.weight-chart svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Tooltip (shared across interactive SVG charts) */
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--color-primary-darker);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+.chart-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.chart-tooltip__value {
+  font-weight: var(--fw-bold);
+  font-size: 0.88rem;
+}
+.chart-tooltip__delta {
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+.chart-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--color-primary-darker);
+}
+
+/* Weight labels on Y axis */
+.weight-chart__y-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.weight-chart__y-label {
+  font-size: 0.62rem;
+  color: var(--color-text-light);
+  text-align: right;
+  padding-right: 6px;
+}
+
+/* ── Engagement mini gauges ── */
+.engage-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-sm);
+}
+.engage-item {
+  text-align: center;
+  padding: var(--space-sm) 0;
+}
+.engage-item__ring {
+  display: block;
+  margin: 0 auto var(--space-xs);
+}
+.engage-item__value {
+  font-size: 0.84rem;
+  font-weight: var(--fw-bold);
+}
+.engage-item__label {
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* ── Appointment timeline ── */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--color-primary) 0%,
+    var(--color-border) 100%
+  );
+  border-radius: 1px;
+}
+
+.timeline__item {
+  position: relative;
+  padding-bottom: 18px;
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: timelineSlideIn 0.4s ease forwards;
+}
+.timeline__item:last-child { padding-bottom: 0; }
+
+@keyframes timelineSlideIn {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.timeline__dot {
+  position: absolute;
+  left: -24px;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-card);
+  box-shadow: 0 0 0 2px var(--color-border);
+}
+.timeline__dot--completed  { background: var(--color-success); box-shadow: 0 0 0 2px var(--color-success); }
+.timeline__dot--canceled   { background: var(--color-warning); box-shadow: 0 0 0 2px var(--color-warning); }
+.timeline__dot--no-show    { background: var(--color-danger);  box-shadow: 0 0 0 2px var(--color-danger); }
+.timeline__dot--scheduled  { background: var(--color-info);    box-shadow: 0 0 0 2px var(--color-info); }
+
+.timeline__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.timeline__date {
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary);
+}
+.timeline__type {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+.timeline__status-pill {
+  font-size: 0.62rem;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-medium);
+  text-transform: capitalize;
+}
+.timeline__status-pill--completed  { background: var(--color-success-light); color: var(--color-success); }
+.timeline__status-pill--canceled   { background: var(--color-warning-light); color: var(--color-warning); }
+.timeline__status-pill--no-show    { background: var(--color-danger-light);  color: var(--color-danger); }
+.timeline__status-pill--scheduled  { background: var(--color-info-light);    color: var(--color-info); }
+
+.timeline__note {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .profile-hero { flex-direction: column; }
+  .profile-hero__right { flex-wrap: wrap; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .engage-grid { grid-template-columns: repeat(3, 1fr); }
+}

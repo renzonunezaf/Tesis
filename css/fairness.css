@@ -1,197 +1,227 @@
 /* ==========================================================
-   FAIRNESS VIEW v5
-   Gauges, subgroup cards, divergence charts.
-   Cleaned: no ethnicity section, fixed n=xxx layout.
+   FAIRNESS VIEW v4
+   Diverse chart types: gauges, dot plots, paired rings,
+   US tile map, connected dots, divergence, parity matrix.
    ========================================================== */
 
 /* ── Header ── */
-.fairness-header { margin-bottom: 8px; }
+.fairness-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: var(--space-md); gap: var(--space-md);
+}
 .fairness-headline {
-  font-size: 1.4rem; font-weight: 700; letter-spacing: -0.3px;
+  font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em;
+  color: var(--color-text); line-height: 1.1;
 }
 .fairness-headline span { color: var(--color-primary); }
-.fairness-tagline { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 4px; }
+.fairness-tagline { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 4px; }
 
-/* ── Status badges ── */
-.fairness-badge-row {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; margin-top: 12px;
-}
+.fairness-badge-row { display: flex; gap: 8px; margin-bottom: var(--space-lg); flex-wrap: wrap; }
 .fbadge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: var(--radius-pill);
-  font-size: 0.72rem; font-weight: 600;
+  padding: 5px 12px 5px 20px; border-radius: 99px; font-size: 0.68rem;
+  font-weight: 600; border: 1px solid; position: relative;
 }
 .fbadge::before {
-  content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  content: ''; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px; border-radius: 50%;
 }
-.fbadge--ok   { background: var(--color-success-light); color: #276749; }
+.fbadge--ok    { background: rgba(72,187,120,0.1); border-color: rgba(72,187,120,0.3); color: var(--color-success); }
 .fbadge--ok::before { background: var(--color-success); }
-.fbadge--warn { background: #FFF5F5; color: #C53030; }
-.fbadge--warn::before { background: var(--color-danger); }
-.fbadge--info { background: var(--color-bg); color: var(--color-text-muted); }
-.fbadge--info::before { background: var(--color-text-muted); }
+.fbadge--warn  { background: rgba(221,107,32,0.1); border-color: rgba(221,107,32,0.3); color: var(--color-warning); }
+.fbadge--warn::before { background: var(--color-warning); }
+.fbadge--info  { background: rgba(49,151,149,0.1); border-color: rgba(49,151,149,0.3); color: var(--color-primary); }
+.fbadge--info::before { background: var(--color-primary); }
 
 /* ── Section titles ── */
 .fairness-section-title {
   font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.5px; color: var(--color-text-muted);
-  margin: 24px 0 12px; padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-border-light);
+  letter-spacing: 0.1em; color: var(--color-text-muted);
+  margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;
 }
+.fairness-section-title::after { content: ''; flex: 1; height: 1px; background: var(--color-border-light); }
 
-/* ── Gauge cards ── */
+/* ── Gauge cards (overall performance) ── */
 .fairness-gauges {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 8px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm); margin-bottom: var(--space-lg);
 }
 .gauge-card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 20px 16px 16px;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 8px; text-align: center;
+  background: var(--color-card); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
   transition: box-shadow var(--ease), transform var(--ease);
 }
 .gauge-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
 .gauge-svg-wrap { position: relative; }
 .gauge-center {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding-top: 8px;
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding-top: 8px;
 }
-.gauge-value { font-size: 1.2rem; font-weight: 700; line-height: 1; }
-.gauge-card-title { font-size: 0.76rem; font-weight: 600; color: var(--color-text); }
-.gauge-card-sub { font-size: 0.65rem; color: var(--color-text-muted); line-height: 1.3; }
+.gauge-value { font-size: 1.1rem; font-weight: 700; line-height: 1; }
+.gauge-card-title { font-size: 0.7rem; font-weight: 600; color: var(--color-text); }
+.gauge-card-sub { font-size: 0.62rem; color: var(--color-text-muted); line-height: 1.3; }
+.gauge-arc-fill { transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
-/* Gauge arc animation */
-.gauge-arc {
-  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* ── Disclaimer ── */
+.fairness-disclaimer {
+  background: rgba(221,107,32,0.06); border: 1px solid rgba(221,107,32,0.2);
+  border-radius: var(--radius); padding: 12px 16px;
+  font-size: 0.76rem; color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
 }
+.fairness-disclaimer strong { font-weight: 700; color: var(--color-warning); }
 
-/* ── Group cards ── */
-.fairness-group-row {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px;
-}
-.fairness-group-card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 0; overflow: hidden;
+/* ── Row layouts ── */
+.fair-row { margin-bottom: var(--space-lg); }
+.fair-row--2col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+
+/* ── Card base ── */
+.fair-card {
+  background: var(--color-card); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm);
   transition: box-shadow var(--ease), transform var(--ease);
 }
-.fairness-group-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.fair-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.fair-card--tall { min-height: 260px; }
+.fair-card__title { font-size: 0.88rem; font-weight: var(--fw-semibold); margin-bottom: 4px; }
+.fair-card__sub { font-size: 0.72rem; color: var(--color-text-muted); margin-bottom: var(--space-md); }
 
-.fgc-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 16px 20px; border-bottom: 1px solid var(--color-border-light);
-  background: var(--color-bg);
-}
-.fgc-icon { width: 28px; height: 28px; flex-shrink: 0; color: var(--color-primary); }
-.fgc-icon svg { width: 100%; height: 100%; }
-.fgc-title { font-size: 0.88rem; font-weight: 600; }
-.fgc-sub { font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px; }
+/* ── Shared SVG container ── */
+.fair-svg { width: 100%; height: auto; display: block; }
 
-.fgc-rows { padding: 4px 0; }
+/* ── Dot plot animations ── */
+.fair-dot { transition: opacity 0.4s ease; }
+.fair-dot-label { transition: opacity 0.3s ease; }
+.fair-lollipop-stem { transition: opacity 0.5s ease; }
 
-.fgc-row {
-  display: grid;
-  grid-template-columns: 140px 1fr 1fr 1fr;
-  gap: 8px; align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--color-border-light);
-  transition: background var(--ease);
+/* ── Sex paired rings ── */
+.fair-sex-metric {
+  padding: 12px 0; border-bottom: 1px solid var(--color-border-light);
 }
-.fgc-row:last-child { border-bottom: none; }
-.fgc-row:hover { background: var(--color-bg-mint); }
+.fair-sex-metric:last-child { border-bottom: none; }
+.fair-sex-metric-label {
+  font-size: 0.72rem; font-weight: var(--fw-semibold);
+  color: var(--color-text-muted); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 8px;
+}
+.fair-sex-pair {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-md);
+}
+.fair-sex-item { text-align: center; }
+.fair-sex-name {
+  font-size: 0.68rem; color: var(--color-text-muted); margin-top: 4px;
+}
+.fair-sex-gap { text-align: center; min-width: 50px; }
+.fair-sex-gap-val {
+  font-size: 0.9rem; font-weight: var(--fw-bold); color: var(--color-text);
+}
+.fair-sex-gap-label {
+  font-size: 0.58rem; color: var(--color-text-light); text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fair-sex-ring { transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1); }
 
-/* ── Row label with clean n=xxx badge ── */
-.fgc-row-label {
-  display: flex; align-items: center; gap: 8px;
+/* ── US tile map ── */
+.fair-map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
-.fgc-row-name {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--color-text);
+.map-tile { cursor: default; }
+.map-tile-rect {
+  transition: opacity 0.3s ease;
 }
-.fgc-row-n {
-  font-size: 0.6rem;
-  font-weight: 600;
+.map-tile:hover .map-tile-rect {
+  opacity: 1 !important;
+  filter: brightness(1.15);
+}
+.map-tile:hover .map-tile-label {
+  font-weight: 800;
+}
+.fair-map-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
+}
+.fair-map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+.fair-map-legend-name {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary);
+  min-width: 75px;
+}
+.fair-map-legend-metrics {
+  display: flex;
+  gap: 10px;
+}
+.fair-map-metric {
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  padding: 2px 7px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  line-height: 1;
+  font-weight: var(--fw-medium);
+}
+.fair-legend-dot {
+  width: 8px; height: 8px; border-radius: var(--radius-full); flex-shrink: 0;
 }
 
-/* ── Metric cells ── */
-.fgc-metric { display: flex; flex-direction: column; gap: 3px; }
-.fgc-metric-name {
-  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.5px;
-  color: var(--color-text-light); text-transform: uppercase;
-}
-.fgc-metric-bar-wrap { display: flex; align-items: center; gap: 8px; }
-.fgc-metric-bar-track {
-  flex: 1; height: 6px; background: var(--color-border-light);
-  border-radius: 99px; overflow: hidden;
-}
-.fgc-metric-bar-fill {
-  height: 100%; border-radius: 99px;
-  width: 0; transition: width 1s cubic-bezier(0.4,0,0.2,1);
-}
-.fgc-metric-val {
-  font-size: 0.74rem; font-weight: 700;
-  min-width: 30px; text-align: right;
-}
-.fgc-metric-bar-fill--good { background: var(--color-success); }
-.fgc-metric-bar-fill--warn { background: var(--color-warning); }
-.fgc-metric-bar-fill--bad  { background: var(--color-danger); }
-.fgc-metric-val--good { color: var(--color-success); }
-.fgc-metric-val--warn { color: var(--color-warning); }
-.fgc-metric-val--bad  { color: var(--color-danger); }
+/* ── Connected dot plot ── */
+.fair-connect-line { transition: opacity 0.5s ease; }
 
-/* ── Divergence chart ── */
-.fairness-diverg-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;
+/* ── Divergence bars ── */
+.fair-diverg-section { margin-bottom: var(--space-md); }
+.fair-diverg-title {
+  font-size: 0.72rem; font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary); margin-bottom: var(--space-sm);
 }
-.diverg-panel {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 20px;
+.diverg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.diverg-row-label {
+  width: 100px; font-size: 0.72rem; font-weight: 600;
+  color: var(--color-text); text-align: right; flex-shrink: 0;
 }
-.diverg-panel__title { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
-.diverg-panel__sub { font-size: 0.68rem; color: var(--color-text-muted); margin-bottom: 14px; }
-
-.diverg-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid var(--color-border-light);
-}
-.diverg-row:last-child { border-bottom: none; }
-.diverg-row-label { width: 80px; font-size: 0.78rem; font-weight: 500; flex-shrink: 0; }
-.diverg-center-line {
-  flex: 1; height: 12px; position: relative;
-  display: flex; align-items: center;
-}
-.diverg-axis {
-  position: absolute; left: 50%; top: 0; bottom: 0;
-  width: 1px; background: var(--color-border);
-}
+.diverg-center-line { position: relative; flex: 1; height: 20px; display: flex; align-items: center; }
+.diverg-axis { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--color-border); }
 .diverg-bar {
-  position: absolute; height: 100%; border-radius: 3px;
-  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  position: absolute; height: 12px; border-radius: 3px;
+  top: 50%; transform: translateY(-50%);
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.diverg-bar--pos { left: 50%; width: 0; }
-.diverg-bar--neg { right: 50%; width: 0; }
-.diverg-val {
-  width: 40px; text-align: right; font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+.diverg-bar--pos { left: 50%; }
+.diverg-bar--neg { right: 50%; }
+.diverg-val { font-size: 0.71rem; font-weight: 700; min-width: 36px; text-align: left; font-variant-numeric: tabular-nums; }
+
+/* ── Parity check matrix ── */
+.parity-grid {
+  display: grid; grid-template-columns: 80px repeat(3, 1fr); gap: 4px;
 }
+.parity-corner { font-size: 0.6rem; color: var(--color-text-light); }
+.parity-col-label {
+  text-align: center; font-size: 0.66rem; font-weight: var(--fw-semibold);
+  color: var(--color-text-muted); text-transform: uppercase;
+  letter-spacing: 0.05em; padding: 6px;
+}
+.parity-row-label {
+  font-size: 0.72rem; font-weight: var(--fw-medium);
+  color: var(--color-text-secondary); display: flex; align-items: center;
+  padding-right: 6px;
+}
+.parity-cell {
+  text-align: center; padding: 14px 8px; border-radius: var(--radius-xs);
+  font-size: 0.9rem; font-weight: var(--fw-bold);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.parity-cell--pass { background: rgba(56,161,105,0.12); color: var(--color-success); }
+.parity-cell--warn { background: rgba(221,107,32,0.1); color: var(--color-warning); }
+.parity-cell--fail { background: rgba(229,62,62,0.1); color: var(--color-danger); }
 
 /* ── Responsive ── */
 @media (max-width: 1100px) {
   .fairness-gauges { grid-template-columns: repeat(2, 1fr); }
-  .fairness-group-row { grid-template-columns: 1fr; }
-  .fairness-diverg-row { grid-template-columns: 1fr; }
+  .fair-row--2col { grid-template-columns: 1fr; }
 }

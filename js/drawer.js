@@ -91,12 +91,19 @@ EnaraApp.openDrawer = function(patientId) {
     '<div class="drawer-section fade-in" style="animation-delay:.16s">' +
       '<h4 class="drawer-section__title">Recommended Action</h4>' +
       '<button class="drawer-action">' +
-        (p.action === 'No action needed' ? 'No action needed' : '→ ' + p.action) +
+        (p.action === 'No action needed' ? '✅ No action needed' : '→ ' + p.action) +
       '</button>' +
     '</div>' +
 
-    '<div class="shap-note fade-in" style="animation-delay:.2s">' +
-      'These factors influenced the model prediction. They are not direct clinical causes. ' +
+    '<div class="drawer-section fade-in" style="animation-delay:.2s">' +
+      '<button class="drawer-action" style="background:var(--grad-hero);margin-top:6px" ' +
+        'onclick="EnaraApp.openProfile(\'' + p.id + '\')">' +
+        '📋 View Full Profile' +
+      '</button>' +
+    '</div>' +
+
+    '<div class="shap-note fade-in" style="animation-delay:.24s">' +
+      '⚠️ These factors influenced the model prediction. They are not direct clinical causes. ' +
       'Clinical judgment should always guide intervention decisions.' +
     '</div>';
 
@@ -109,7 +116,7 @@ EnaraApp.openDrawer = function(patientId) {
     '<div class="shap-summary">' + p.summary + '</div>' +
     '<div style="margin-top:8px">' + shapBars + '</div>';
   document.getElementById('shap-panel-title').textContent =
-    'Why the model is concerned — ' + p.name;
+    '🧠 Why the model is concerned — ' + p.name;
   document.getElementById('shap-panel-subtitle').textContent =
     p.id + ' · ' + p.risk + '% risk · ' + p.medTrack + ' · ' + p.modality;
 };

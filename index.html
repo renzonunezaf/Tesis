@@ -20,6 +20,9 @@
   <link rel="stylesheet" href="css/drawer.css">
   <link rel="stylesheet" href="css/analytics.css">
   <link rel="stylesheet" href="css/fairness.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/log.css">
+  <link rel="stylesheet" href="css/model-performance.css">
   <link rel="stylesheet" href="css/utilities.css">
 </head>
 <body>
@@ -34,23 +37,23 @@
     <div class="sidebar__section">Operations</div>
     <div class="sidebar__nav">
       <a href="#" class="is-active" data-view="operations">
-        <span class="nav-icon" aria-hidden="true" id="ni-dashboard"></span>Dashboard<span class="sidebar__badge">38</span>
+        <span class="nav-icon">📊</span>Dashboard<span class="sidebar__badge">38</span>
       </a>
-      <a href="#"><span class="nav-icon" aria-hidden="true" id="ni-patients"></span>Patient Queue</a>
-      <a href="#"><span class="nav-icon" aria-hidden="true" id="ni-log"></span>Intervention Log</a>
+      <a href="#"><span class="nav-icon">👥</span>Patient Queue</a>
+      <a href="#" data-view="log"><span class="nav-icon">📋</span>Intervention Log</a>
     </div>
 
     <div class="sidebar__section">Insights</div>
     <div class="sidebar__nav">
-      <a href="#" data-view="analytics"><span class="nav-icon" aria-hidden="true" id="ni-analytics"></span>Risk Insights</a>
-      <a href="#" data-view="fairness"><span class="nav-icon" aria-hidden="true" id="ni-fairness"></span>Fairness Review</a>
-      <a href="#"><span class="nav-icon" aria-hidden="true" id="ni-model"></span>Model Performance</a>
+      <a href="#" data-view="analytics"><span class="nav-icon">📈</span>Risk Insights</a>
+      <a href="#" data-view="fairness"><span class="nav-icon">⚖️</span>Fairness Review</a>
+      <a href="#" data-view="model"><span class="nav-icon">🧠</span>Model Performance</a>
     </div>
 
     <div class="sidebar__section">Admin</div>
     <div class="sidebar__nav">
-      <a href="#"><span class="nav-icon" aria-hidden="true" id="ni-profile"></span>Patient Profiles</a>
-      <a href="#"><span class="nav-icon" aria-hidden="true" id="ni-settings"></span>Settings</a>
+      <a href="#"><span class="nav-icon">👤</span>Patient Profiles</a>
+      <a href="#"><span class="nav-icon">⚙️</span>Settings</a>
     </div>
 
     <div class="sidebar__footer">
@@ -70,11 +73,11 @@
       <div class="topbar__left">
         <h1 class="topbar__title">Dropout Risk Dashboard</h1>
         <div class="topbar__meta">
-          <div class="topbar__meta-item"><span id="ni-calendar" class="topbar__meta-svg"></span> Mar 24–30, 2026</div>
+          <div class="topbar__meta-item">📅 Mar 24–30, 2026</div>
           <div class="topbar__meta-item">
             <span class="topbar__dot-live"></span> Updated 2h ago
           </div>
-          <div class="topbar__meta-item"><span id="ni-brain" class="topbar__meta-svg"></span> Predicted today 06:00</div>
+          <div class="topbar__meta-item">🧠 Predicted today 06:00</div>
         </div>
       </div>
       <div class="topbar__right">
@@ -133,7 +136,7 @@
             <option>Dr. Sarah Chen</option><option>Maria Lopez, RD</option>
             <option>James Wu, LCSW</option><option>Unassigned</option>
           </select>
-          <button class="filter-bar__btn" id="filter-clear">Clear</button>
+          <button class="filter-bar__btn" id="filter-clear">✕ Clear</button>
           <span class="filter-bar__count" id="filter-count"></span>
         </div>
 
@@ -167,7 +170,7 @@
           <!-- Left: SHAP Explainability -->
           <div class="panel" id="shap-panel">
             <h3 class="panel__title" id="shap-panel-title">
-              <span id="ni-shap" class="panel-title-svg"></span> Why the model is concerned
+              🧠 Why the model is concerned
             </h3>
             <div class="panel__subtitle" id="shap-panel-subtitle">
               Select a patient row to see their risk explanation
@@ -181,35 +184,35 @@
 
           <!-- Right: Distribution + Trend + Outreach + Effectiveness -->
           <div class="panel">
-            <h3 class="panel__title"><span id="ni-dist" class="panel-title-svg"></span> Risk Distribution</h3>
+            <h3 class="panel__title">📊 Risk Distribution</h3>
             <div class="panel__subtitle">1,247 active patients by dropout probability</div>
             <div id="dist-bars"><!-- Rendered by js/charts.js --></div>
 
             <div class="mt-lg">
-              <h3 class="panel__title"><span id="ni-trend" class="panel-title-svg"></span> High-Risk Trend (8 weeks)</h3>
+              <h3 class="panel__title">📈 High-Risk Trend (8 weeks)</h3>
               <div class="trend-chart" id="trend-chart"></div>
               <div class="trend-labels" id="trend-labels"></div>
             </div>
 
             <div class="mt-lg">
-              <h3 class="panel__title"><span id="ni-outreach" class="panel-title-svg"></span> Outreach Plan</h3>
+              <h3 class="panel__title">📋 Outreach Plan</h3>
               <div class="panel__subtitle">Based on this week's predictions</div>
               <div class="outreach-item outreach-item--critical">
-                <span id="ni-phone" class="outreach-svg"></span><div><strong>12 critical</strong> — Call within 48h</div>
+                📞 <div><strong>12 critical</strong> — Call within 48h</div>
               </div>
               <div class="outreach-item outreach-item--high">
-                <span id="ni-stetho" class="outreach-svg"></span><div><strong>26 high-risk</strong> — Nutritionist outreach this week</div>
+                🩺 <div><strong>26 high-risk</strong> — Nutritionist outreach this week</div>
               </div>
               <div class="outreach-item outreach-item--medium">
-                <span id="ni-msg" class="outreach-svg"></span><div><strong>58 medium</strong> — Automated check-in message</div>
+                💬 <div><strong>58 medium</strong> — Automated check-in message</div>
               </div>
               <div class="outreach-item outreach-item--low">
-                <span id="ni-checkitem" class="outreach-svg"></span><div><strong>1,151 low</strong> — Standard follow-up</div>
+                ✅ <div><strong>1,151 low</strong> — Standard follow-up</div>
               </div>
             </div>
 
             <div class="mt-lg">
-              <h3 class="panel__title"><span id="ni-star" class="panel-title-svg"></span> Intervention Effectiveness</h3>
+              <h3 class="panel__title">✨ Intervention Effectiveness</h3>
               <div class="effectiveness-grid">
                 <div class="effectiveness-card">
                   <div class="effectiveness-card__value effectiveness-card__value--primary">84</div>
@@ -238,7 +241,10 @@
            ANALYTICS VIEW
            ================================================ -->
       <div class="view" id="view-analytics">
-        <div id="analytics-grid">
+        <h2 class="view-heading">
+          Population Risk Insights
+        </h2>
+        <div class="analytics-grid" id="analytics-grid">
           <!-- Rendered by js/analytics.js -->
         </div>
       </div>
@@ -247,8 +253,29 @@
            FAIRNESS VIEW
            ================================================ -->
       <div class="view" id="view-fairness">
-        <!-- Rendered by js/fairness.js -->
+        <!-- Rendered dynamically by js/fairness.js -->
       </div><!-- /#view-fairness -->
+
+      <!-- ================================================
+           PATIENT PROFILE VIEW
+           ================================================ -->
+      <div class="view" id="view-profile">
+        <!-- Rendered dynamically by js/profile.js -->
+      </div><!-- /#view-profile -->
+
+      <!-- ================================================
+           INTERVENTION LOG VIEW
+           ================================================ -->
+      <div class="view" id="view-log">
+        <!-- Rendered dynamically by js/log.js -->
+      </div><!-- /#view-log -->
+
+      <!-- ================================================
+           MODEL PERFORMANCE VIEW
+           ================================================ -->
+      <div class="view" id="view-model">
+        <!-- Rendered dynamically by js/model-performance.js -->
+      </div><!-- /#view-model -->
 
     </div><!-- /.content -->
   </div><!-- /.main -->
@@ -261,10 +288,10 @@
   <div class="drawer" id="drawer-panel">
     <div class="drawer__header">
       <div class="drawer__header-info">
-        <h2 class="drawer__title"><span id="ni-drawer-shap" class="panel-title-svg"></span> <span id="drawer-title">Why the model is concerned</span></h2>
+        <h2 class="drawer__title">🧠 <span id="drawer-title">Why the model is concerned</span></h2>
         <div class="drawer__subtitle" id="drawer-subtitle"></div>
       </div>
-      <button class="drawer__close" id="drawer-close" aria-label="Close"></button>
+      <button class="drawer__close" id="drawer-close">✕</button>
     </div>
     <div class="drawer__body" id="drawer-body">
       <!-- Populated dynamically by js/drawer.js -->
@@ -274,8 +301,8 @@
   <!-- ====================================================
        JAVASCRIPT (load order matters)
        ==================================================== -->
-  <script src="js/icons.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/data-extended.js"></script>
   <script src="js/kpi.js"></script>
   <script src="js/table.js"></script>
   <script src="js/filters.js"></script>
@@ -283,44 +310,11 @@
   <script src="js/charts.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/fairness.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/log.js"></script>
+  <script src="js/model-performance.js"></script>
   <script src="js/views.js"></script>
   <script src="js/app.js"></script>
 
-
-  <!-- Icon injection (runs after EnaraIcons is loaded) -->
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var I = EnaraIcons;
-    var map = {
-      'ni-dashboard': 'dashboard',
-      'ni-patients':  'patients',
-      'ni-log':       'log',
-      'ni-analytics': 'analytics',
-      'ni-fairness':  'fairness',
-      'ni-model':     'model',
-      'ni-profile':   'profile',
-      'ni-settings':  'settings',
-      'ni-calendar':  'calendar',
-      'ni-brain':     'brain',
-      'ni-shap':      'shap',
-      'ni-dist':      'distribution',
-      'ni-trend':     'trend',
-      'ni-outreach':  'outreach',
-      'ni-star':      'star',
-      'ni-phone':     'phone',
-      'ni-stetho':    'stethoscope',
-      'ni-msg':       'message',
-      'ni-checkitem': 'check',
-      'ni-drawer-shap':'shap',
-    };
-    Object.keys(map).forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.innerHTML = I[map[id]] || '';
-    });
-    // Close button
-    var closeBtn = document.getElementById('drawer-close');
-    if (closeBtn) closeBtn.innerHTML = I.close;
-  });
-  </script>
 </body>
 </html>

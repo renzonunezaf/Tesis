@@ -39,5 +39,12 @@ EnaraApp.renderKPIs = function() {
     '</div>';
   }).join('');
 
-  /* Animation triggered by EnaraApp.animateKPIRings() — called from views.js on each switch */
+  /* Animate rings after render */
+  requestAnimationFrame(function() {
+    setTimeout(function() {
+      document.querySelectorAll('.kpi__ring-fill').forEach(function(ring) {
+        ring.style.strokeDashoffset = ring.dataset.target;
+      });
+    }, 100);
+  });
 };

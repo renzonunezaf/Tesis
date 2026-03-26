@@ -1,0 +1,324 @@
+/* ==========================================================
+   MODEL PERFORMANCE VIEW
+   Confusion matrix, ROC curve, feature importance,
+   model comparison, cross-validation scores.
+   ========================================================== */
+
+/* ── Header ── */
+.mp-header { margin-bottom: var(--space-sm); }
+.mp-headline {
+  font-size: 1.65rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.mp-headline span { color: var(--color-primary); }
+.mp-tagline {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* ── Badges ── */
+.mp-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: var(--space-lg);
+}
+.mp-badge {
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  border: 1px solid;
+}
+.mp-badge--success {
+  background: rgba(56,161,105,0.1);
+  border-color: rgba(56,161,105,0.3);
+  color: var(--color-success);
+}
+.mp-badge--primary {
+  background: rgba(56,159,186,0.1);
+  border-color: rgba(56,159,186,0.3);
+  color: var(--color-primary);
+}
+
+/* ── Row layouts ── */
+.mp-row { margin-bottom: var(--space-lg); }
+.mp-row--2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* ── Card ── */
+.mp-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.mp-card__title {
+  font-size: 0.88rem;
+  font-weight: var(--fw-semibold);
+  margin-bottom: 4px;
+}
+.mp-card__sub {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* ── Model comparison table ── */
+.mp-table-row {
+  display: grid;
+  grid-template-columns: 2fr repeat(6, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.mp-table-row--header {
+  border-bottom: 2px solid var(--color-border);
+}
+.mp-table-row--header .mp-table-cell {
+  font-size: 0.62rem;
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  padding: 10px 8px;
+}
+.mp-table-row--selected {
+  background: rgba(56,159,186,0.06);
+  border-left: 3px solid var(--color-primary);
+}
+.mp-table-cell {
+  padding: 12px 8px;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.mp-table-cell--name {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+/* ── Selected model gauges ── */
+.mp-gauge-row {
+  display: flex;
+  justify-content: space-around;
+  padding-top: var(--space-sm);
+}
+.mp-gauge-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.mp-gauge-label {
+  font-size: 0.72rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-text-secondary);
+}
+.mp-ring-fill {
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Confusion Matrix ── */
+.mp-cm-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr;
+  gap: 6px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.mp-cm-corner {
+  font-size: 0.6rem;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 4px;
+  line-height: 1.3;
+}
+.mp-cm-header {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: var(--fw-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px;
+}
+.mp-cm-label {
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+.mp-cm-cell {
+  text-align: center;
+  padding: 18px 12px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mp-cm-cell--good {
+  background: rgba(56,161,105,0.12);
+  border: 1px solid rgba(56,161,105,0.25);
+}
+.mp-cm-cell--bad {
+  background: rgba(229,62,62,0.08);
+  border: 1px solid rgba(229,62,62,0.2);
+}
+.mp-cm-val {
+  font-size: 1.3rem;
+  font-weight: var(--fw-bold);
+}
+.mp-cm-cell--good .mp-cm-val { color: var(--color-success); }
+.mp-cm-cell--bad .mp-cm-val  { color: var(--color-danger); }
+.mp-cm-pct {
+  font-size: 0.64rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* ── ROC Curve ── */
+.mp-roc { display: flex; justify-content: center; }
+.mp-roc-svg { width: 100%; max-width: 320px; height: auto; }
+.roc-area { transition: opacity 0.8s ease; }
+.roc-dot { transition: opacity 0.3s ease; }
+
+/* ── Feature importance ── */
+.mp-feat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.78rem;
+}
+.mp-feat-row:last-child { border-bottom: none; }
+.mp-feat-rank {
+  width: 20px;
+  font-size: 0.66rem;
+  font-weight: var(--fw-bold);
+  color: var(--color-text-light);
+  text-align: center;
+}
+.mp-feat-name {
+  width: 180px;
+  font-weight: var(--fw-medium);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  font-size: 0.74rem;
+}
+.mp-feat-track {
+  flex: 1;
+  height: 10px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.mp-feat-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mp-feat-val {
+  width: 36px;
+  text-align: right;
+  font-weight: var(--fw-bold);
+  font-size: 0.74rem;
+  color: var(--color-primary);
+}
+
+/* ── Cross-validation ── */
+.mp-cv-summary {
+  display: flex;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.mp-cv-stat { text-align: center; }
+.mp-cv-stat-val {
+  font-size: 1.5rem;
+  font-weight: var(--fw-bold);
+}
+.mp-cv-stat-label {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+.mp-cv-folds {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mp-cv-fold {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mp-cv-fold-label {
+  width: 50px;
+  font-size: 0.72rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-text-muted);
+}
+.mp-cv-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mp-cv-bar-wrap {
+  height: 8px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.mp-cv-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mp-cv-vals {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 36px;
+  text-align: right;
+  font-size: 0.68rem;
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+.mp-cv-legend {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
+}
+.mp-cv-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+.mp-cv-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .mp-row--2col { grid-template-columns: 1fr; }
+  .mp-table-row { grid-template-columns: 2fr repeat(3, 1fr); }
+  .mp-table-cell:nth-child(n+6) { display: none; }
+}
