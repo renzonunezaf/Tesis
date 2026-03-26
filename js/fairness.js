@@ -12,48 +12,15 @@
  * ==========================================================
  */
 
-EnaraApp.renderFairness = function() {
+/**
+ * @param {Object} fairnessData - Subgroup metrics from api.getFairnessData()
+ */
+EnaraApp.renderFairness = function(fairnessData) {
   var container = document.getElementById('view-fairness');
   if (!container) return;
 
-  /* ─── Data ─── */
-  var groups = {
-    age: {
-      title: 'By Age Group', sub: '1,247 patients across 4 cohorts',
-      rows: [
-        { label: '18–29', recall: 0.89, precision: 0.84, fpr: 0.06, n: 287 },
-        { label: '30–44', recall: 0.91, precision: 0.87, fpr: 0.05, n: 412 },
-        { label: '45–59', recall: 0.88, precision: 0.86, fpr: 0.07, n: 356 },
-        { label: '60+',   recall: 0.79, precision: 0.82, fpr: 0.11, n: 192 }
-      ]
-    },
-    sex: {
-      title: 'By Sex', sub: 'Female / Male split',
-      rows: [
-        { label: 'Female', recall: 0.90, precision: 0.86, fpr: 0.06, n: 741 },
-        { label: 'Male',   recall: 0.87, precision: 0.85, fpr: 0.07, n: 506 }
-      ]
-    },
-    region: {
-      title: 'By Region', sub: '4 geographic zones',
-      rows: [
-        { label: 'West Coast', recall: 0.91, precision: 0.88, fpr: 0.05, n: 389 },
-        { label: 'East Coast', recall: 0.89, precision: 0.85, fpr: 0.06, n: 342 },
-        { label: 'Midwest',    recall: 0.87, precision: 0.84, fpr: 0.07, n: 284 },
-        { label: 'South',      recall: 0.82, precision: 0.79, fpr: 0.10, n: 232 }
-      ]
-    },
-    ethnicity: {
-      title: 'By Race / Ethnicity', sub: 'Audit-only · not used operationally',
-      rows: [
-        { label: 'White',            recall: 0.90, precision: 0.87, fpr: 0.05, n: 498 },
-        { label: 'Hispanic/Latino',  recall: 0.88, precision: 0.84, fpr: 0.07, n: 312 },
-        { label: 'Black/Af. Am.',    recall: 0.83, precision: 0.80, fpr: 0.09, n: 256 },
-        { label: 'Asian',            recall: 0.91, precision: 0.88, fpr: 0.05, n: 118 },
-        { label: 'Other/Not Disc.',  recall: 0.86, precision: 0.83, fpr: 0.08, n: 63 }
-      ]
-    }
-  };
+  /* ─── Data from parameter ─── */
+  var groups = fairnessData;
 
   function classify(val, isFpr) {
     if (isFpr) return val <= 0.07 ? 'good' : val <= 0.09 ? 'warn' : 'bad';
@@ -268,17 +235,13 @@ EnaraApp._renderRegionMap = function(g) {
     south:   g.rows[3]
   };
 
-  var regionLabels = {
-    west: 'West Coast', east: 'East Coast',
-    midwest: 'Midwest', south: 'South'
-  };
-
-  var regionColors = {
-    west:    '#38A169',
-    east:    '#389FBA',
-    midwest: '#DD6B20',
-    south:   '#E53E3E'
-  };
+  /* Region labels and colors from data layer */
+  var regionLabels = {};
+  var regionColors = {};
+  Object.keys(EnaraApp.REGION_CONFIG).forEach(function(k) {
+    regionLabels[k] = EnaraApp.REGION_CONFIG[k].label;
+    regionColors[k] = EnaraApp.REGION_CONFIG[k].color;
+  });
 
   /* Use the real viewBox from the SVG map data */
   var vb = EnaraApp.US_MAP_VIEWBOX;
@@ -382,8 +345,8 @@ EnaraApp._openStatePopup = function(stateId, stateName, regionKey, regionData, r
   var color = regionColors[regionKey];
   var label = regionLabels[regionKey];
 
-  /* Overall averages for comparison */
-  var avg = { recall: 0.88, precision: 0.85, fpr: 0.07 };
+  /* Overall averages from data layer */
+  var avg = EnaraApp.FAIRNESS_AVERAGES;
 
   /* Simulated state-level data (seeded from state abbreviation) */
   var seed = 0;

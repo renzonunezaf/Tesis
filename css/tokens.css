@@ -48,6 +48,15 @@
   --color-yellow:         #FFE24C;
   --color-light-blue:     #7BDBFF;
 
+  /* --- Region Map --- */
+  --color-region-west:    #38A169;
+  --color-region-east:    #389FBA;
+  --color-region-midwest: #DD6B20;
+  --color-region-south:   #E53E3E;
+
+  /* --- Risk gauge (high-risk KPI) --- */
+  --color-risk-high:      #FC8181;
+
   /* --- Gradients --- */
   --grad-primary:   linear-gradient(135deg, #389FBA, #1A667A);
   --grad-danger:    linear-gradient(135deg, #FC8181, #E53E3E);

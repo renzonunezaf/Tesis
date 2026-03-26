@@ -8,8 +8,17 @@
 
 /* ----- Open / Close ----- */
 EnaraApp.openDrawer = function(patientId) {
-  var p = EnaraApp.PATIENTS.find(function(x) { return x.id === patientId; });
-  if (!p) return;
+  EnaraApp.api.getPatientById(patientId).then(function(p) {
+    EnaraApp._renderDrawerContent(p);
+  }).catch(function(err) {
+    EnaraApp.showError('drawer-body', 'Could not load patient data: ' + err.message);
+    document.getElementById('drawer-overlay').classList.add('is-open');
+    document.getElementById('drawer-panel').classList.add('is-open');
+  });
+};
+
+/** Internal: populate drawer with patient data */
+EnaraApp._renderDrawerContent = function(p) {
 
   var riskColor = EnaraApp.getRiskColor(p.risk);
   var riskBadge = EnaraApp.RISK_BADGE_CLASS[p.riskLevel];
@@ -57,11 +66,11 @@ EnaraApp.openDrawer = function(patientId) {
     '<div class="drawer-risk fade-in" style="animation-delay:.05s">' +
       '<div class="drawer-risk__score" style="color:' + riskColor + '">' + p.risk + '%</div>' +
       '<div class="drawer-risk__details">' +
-        '<div style="display:flex;gap:6px;margin-bottom:3px">' +
+        '<div class="drawer-risk__badges">' +
           '<span class="badge ' + riskBadge + '">' + p.riskLevel + ' Risk</span>' +
           '<span class="badge ' + priBadge + '">' + p.priority + ' Priority</span>' +
         '</div>' +
-        '<div style="font-size:.75rem;color:var(--color-text-muted)">' +
+        '<div class="drawer-risk__meta">' +
           'Dropout window: ~' + p.dropoutWindow + 'd · Last appt: ' + p.lastAppt + ' · ' + p.daysSince + 'd since contact' +
         '</div>' +
         '<div class="drawer-risk__bar"><div class="drawer-risk__bar-fill" style="width:' + p.risk + '%;background:' + riskColor + '"></div></div>' +
@@ -75,35 +84,34 @@ EnaraApp.openDrawer = function(patientId) {
 
     '<div class="drawer-section fade-in" style="animation-delay:.1s">' +
       '<h4 class="drawer-section__title">Risk & Protective Factors</h4>' +
-      '<div style="font-size:.68rem;color:var(--color-text-muted);margin-bottom:8px">' +
-        '<span style="color:var(--color-success)">← Protective</span> · ' +
-        '<span style="color:var(--color-danger)">Risk →</span></div>' +
+      '<div class="drawer-hint--sm">' +
+        '<span class="drawer-hint__protect">← Protective</span> · ' +
+        '<span class="drawer-hint__risk">Risk →</span></div>' +
       factorsSvg +
     '</div>' +
 
     '<div class="drawer-section fade-in" style="animation-delay:.13s">' +
       '<h4 class="drawer-section__title">SHAP Feature Contributions</h4>' +
-      '<div style="font-size:.7rem;color:var(--color-text-muted);margin-bottom:10px">' +
-        'Red = pushes toward dropout · Green = supports retention</div>' +
+      '<div class="drawer-hint">Red = pushes toward dropout · Green = supports retention</div>' +
       shapBars +
     '</div>' +
 
     '<div class="drawer-section fade-in" style="animation-delay:.16s">' +
       '<h4 class="drawer-section__title">Recommended Action</h4>' +
       '<button class="drawer-action">' +
-        (p.action === 'No action needed' ? '✅ No action needed' : '→ ' + p.action) +
+        (p.action === 'No action needed' ? 'No action needed' : '→ ' + p.action) +
       '</button>' +
     '</div>' +
 
     '<div class="drawer-section fade-in" style="animation-delay:.2s">' +
-      '<button class="drawer-action" style="background:var(--grad-hero);margin-top:6px" ' +
+      '<button class="drawer-action drawer-action--hero" ' +
         'onclick="EnaraApp.openProfile(\'' + p.id + '\')">' +
-        '📋 View Full Profile' +
+        'View Full Profile' +
       '</button>' +
     '</div>' +
 
     '<div class="shap-note fade-in" style="animation-delay:.24s">' +
-      '⚠️ These factors influenced the model prediction. They are not direct clinical causes. ' +
+      'These factors influenced the model prediction. They are not direct clinical causes. ' +
       'Clinical judgment should always guide intervention decisions.' +
     '</div>';
 
@@ -114,9 +122,9 @@ EnaraApp.openDrawer = function(patientId) {
   /* Also update bottom panel (visible when drawer closes) */
   document.getElementById('shap-panel-content').innerHTML =
     '<div class="shap-summary">' + p.summary + '</div>' +
-    '<div style="margin-top:8px">' + shapBars + '</div>';
+    '<div class="shap-panel__bars">' + shapBars + '</div>';
   document.getElementById('shap-panel-title').textContent =
-    '🧠 Why the model is concerned — ' + p.name;
+    'Why the model is concerned — ' + p.name;
   document.getElementById('shap-panel-subtitle').textContent =
     p.id + ' · ' + p.risk + '% risk · ' + p.medTrack + ' · ' + p.modality;
 };

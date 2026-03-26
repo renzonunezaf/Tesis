@@ -14,13 +14,16 @@
  * ==========================================================
  */
 
-EnaraApp.renderAnalytics = function() {
+/**
+ * @param {Array} segments - Segment data from api.getSegments()
+ */
+EnaraApp.renderAnalytics = function(segments) {
   var container = document.getElementById('analytics-grid');
   if (!container) return;
 
   /* Index segments by key for easy access */
   var segs = {};
-  EnaraApp.SEGMENTS.forEach(function(s) {
+  segments.forEach(function(s) {
     var key = s.title.replace('Risk by ', '').replace(/ /g, '_').toLowerCase();
     segs[key] = s;
   });

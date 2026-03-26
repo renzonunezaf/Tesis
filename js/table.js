@@ -69,8 +69,9 @@ EnaraApp.renderTable = function() {
   }).join('');
 
   /* Update filter count */
+  var totalCount = (EnaraApp.state.allPatients || []).length;
   document.getElementById('filter-count').textContent =
-    state.filteredPatients.length + ' of ' + EnaraApp.PATIENTS.length + ' patients';
+    state.filteredPatients.length + ' of ' + totalCount + ' patients';
 
   /* Bind row click events (desktop + mobile touch) */
   tbody.querySelectorAll('tr').forEach(function(tr) {

@@ -91,7 +91,7 @@
           <div class="topbar__meta-item">
             <span class="topbar__dot-live"></span> Updated 2h ago
           </div>
-          <div class="topbar__meta-item">🧠 Predicted today 06:00</div>
+          <div class="topbar__meta-item">Predicted today 06:00</div>
         </div>
       </div>
       <div class="topbar__right">
@@ -183,7 +183,7 @@
           <!-- Left: SHAP Explainability -->
           <div class="panel" id="shap-panel">
             <h3 class="panel__title" id="shap-panel-title">
-              🧠 Why the model is concerned
+              Why the model is concerned
             </h3>
             <div class="panel__subtitle" id="shap-panel-subtitle">
               Select a patient row to see their risk explanation
@@ -197,18 +197,18 @@
 
           <!-- Right: Distribution + Trend + Outreach + Effectiveness -->
           <div class="panel">
-            <h3 class="panel__title">📊 Risk Distribution</h3>
+            <h3 class="panel__title">Risk Distribution</h3>
             <div class="panel__subtitle">1,247 active patients by dropout probability</div>
             <div id="dist-bars"><!-- Rendered by js/charts.js --></div>
 
             <div class="mt-lg">
-              <h3 class="panel__title">📈 High-Risk Trend (8 weeks)</h3>
+              <h3 class="panel__title">High-Risk Trend (8 weeks)</h3>
               <div class="trend-chart" id="trend-chart"></div>
               <div class="trend-labels" id="trend-labels"></div>
             </div>
 
             <div class="mt-lg">
-              <h3 class="panel__title">📋 Outreach Plan</h3>
+              <h3 class="panel__title">Outreach Plan</h3>
               <div class="panel__subtitle">Based on this week's predictions</div>
               <div class="outreach-item outreach-item--critical">
                 📞 <div><strong>12 critical</strong> — Call within 48h</div>
@@ -220,7 +220,7 @@
                 💬 <div><strong>58 medium</strong> — Automated check-in message</div>
               </div>
               <div class="outreach-item outreach-item--low">
-                ✅ <div><strong>1,151 low</strong> — Standard follow-up</div>
+                ✓ <div><strong>1,151 low</strong> — Standard follow-up</div>
               </div>
             </div>
 
@@ -301,7 +301,7 @@
   <div class="drawer" id="drawer-panel">
     <div class="drawer__header">
       <div class="drawer__header-info">
-        <h2 class="drawer__title">🧠 <span id="drawer-title">Why the model is concerned</span></h2>
+        <h2 class="drawer__title"><span id="drawer-title">Why the model is concerned</span></h2>
         <div class="drawer__subtitle" id="drawer-subtitle"></div>
       </div>
       <button class="drawer__close" id="drawer-close">✕</button>
@@ -314,9 +314,17 @@
   <!-- ====================================================
        JAVASCRIPT (load order matters)
        ==================================================== -->
-  <script src="js/data.js"></script>
-  <script src="js/data-extended.js"></script>
-  <script src="js/us-map-data.js"></script>
+  <!-- Data layer (mock — swap with API calls in production) -->
+  <script src="js/data/patients.js"></script>
+  <script src="js/data/patients-extended.js"></script>
+  <script src="js/data/fairness.js"></script>
+  <script src="js/data/us-map.js"></script>
+
+  <!-- Service layer -->
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+
+  <!-- UI modules -->
   <script src="js/kpi.js"></script>
   <script src="js/table.js"></script>
   <script src="js/filters.js"></script>
@@ -328,6 +336,8 @@
   <script src="js/log.js"></script>
   <script src="js/model-performance.js"></script>
   <script src="js/views.js"></script>
+
+  <!-- App entry point (must be last) -->
   <script src="js/app.js"></script>
 
 </body>

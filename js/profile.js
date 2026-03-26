@@ -9,11 +9,27 @@
 
 /* ── Open patient profile ── */
 EnaraApp.openProfile = function(patientId) {
-  var p = EnaraApp.PATIENTS.find(function(x) { return x.id === patientId; });
-  if (!p) return;
-
   EnaraApp.closeDrawer();
   EnaraApp.state.profilePatientId = patientId;
+
+  /* Show loading, then fetch */
+  EnaraApp.showLoading('view-profile', 'default');
+
+  EnaraApp.api.getPatientById(patientId).then(function(p) {
+    EnaraApp._renderProfileContent(p);
+    /* Switch to profile view */
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('is-active'); });
+    document.getElementById('view-profile').classList.add('is-active');
+    document.querySelectorAll('.sidebar__nav a').forEach(function(a) { a.classList.remove('is-active'); });
+  }).catch(function(err) {
+    EnaraApp.showError('view-profile', 'Could not load profile: ' + err.message, function() {
+      EnaraApp.openProfile(patientId);
+    });
+  });
+};
+
+/** Internal: render the full profile view */
+EnaraApp._renderProfileContent = function(p) {
 
   var riskColor = EnaraApp.getRiskColor(p.risk);
   var sexLabel = p.sex === 'F' ? 'Female' : 'Male';
@@ -125,9 +141,6 @@ EnaraApp.openProfile = function(patientId) {
   EnaraApp._renderEngageGrid(patientId);
   EnaraApp._renderTimeline(patientId);
   EnaraApp._renderProfileShap(p);
-
-  /* Switch to profile view */
-  EnaraApp.switchView('profile');
 };
 
 /* ── Helper: profile pill ── */

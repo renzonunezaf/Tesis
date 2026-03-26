@@ -10,9 +10,15 @@
  * ==========================================================
  */
 
-EnaraApp.renderModelPerformance = function() {
+/**
+ * @param {Array} models - Model comparison data from api.getModelComparison()
+ */
+EnaraApp.renderModelPerformance = function(models) {
   var el = document.getElementById('view-model');
   if (!el) return;
+
+  /* Store for sub-renderers */
+  EnaraApp.state.modelComparison = models;
 
   var html = '';
 
@@ -98,7 +104,7 @@ EnaraApp.renderModelPerformance = function() {
 /* ── Model comparison table ── */
 EnaraApp._renderModelComparison = function() {
   var el = document.getElementById('mp-comparison');
-  var models = EnaraApp.MODEL_COMPARISON;
+  var models = EnaraApp.state.modelComparison;
   var best = models[1]; /* Random Forest */
 
   var header = '<div class="mp-table-row mp-table-row--header">' +
@@ -131,7 +137,7 @@ EnaraApp._renderModelComparison = function() {
 /* ── Selected model ring gauges ── */
 EnaraApp._renderSelectedModel = function() {
   var el = document.getElementById('mp-selected');
-  var rf = EnaraApp.MODEL_COMPARISON[1];
+  var rf = EnaraApp.state.modelComparison[1];
   var metrics = [
     { label: 'Accuracy', value: rf.accuracy, color: 'var(--color-success)' },
     { label: 'Recall', value: rf.recall, color: 'var(--color-primary)' },

@@ -7,11 +7,14 @@
  */
 
 /* ----- Risk Distribution: Animated horizontal bars ----- */
-EnaraApp.renderDistribution = function() {
+/**
+ * @param {Array} distData - Distribution segments from api.getDistribution()
+ */
+EnaraApp.renderDistribution = function(distData) {
   var container = document.getElementById('dist-bars');
-  var total = 1247;
+  var total = distData.reduce(function(s, d) { return s + d.count; }, 0);
 
-  container.innerHTML = EnaraApp.DISTRIBUTION.map(function(d, i) {
+  container.innerHTML = distData.map(function(d, i) {
     var pct = (d.count / total) * 100;
     var displayPct = Math.max(pct, 3);
     return '<div class="dist-row fade-in" style="animation-delay:' + (i * 80) + 'ms">' +
@@ -31,8 +34,11 @@ EnaraApp.renderDistribution = function() {
 };
 
 /* ----- Trend: Interactive SVG area chart with tooltip + crosshair ----- */
-EnaraApp.renderTrend = function() {
-  var data = EnaraApp.TREND_DATA;
+/**
+ * @param {Array} trendData - Weekly trend data from api.getTrend()
+ */
+EnaraApp.renderTrend = function(trendData) {
+  var data = trendData;
   var maxVal = Math.max.apply(null, data.map(function(d) { return d.value; }));
   var minVal = Math.min.apply(null, data.map(function(d) { return d.value; }));
   var chartW = 400;

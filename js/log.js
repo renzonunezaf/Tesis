@@ -50,9 +50,15 @@ EnaraApp._logTypeIcon = function(type) {
 };
 
 /* ── Render the full log view ── */
-EnaraApp.renderLog = function() {
+/**
+ * @param {Array} interventions - From api.getInterventionLog()
+ * @param {Array} patients - From api.getPatients() (for name dropdown)
+ */
+EnaraApp.renderLog = function(interventions, patients) {
   var el = document.getElementById('view-log');
-  var interventions = EnaraApp.INTERVENTIONS;
+
+  /* Store for filter function */
+  EnaraApp.state.interventions = interventions;
 
   /* Summary stats */
   var totalCalls = interventions.filter(function(i) { return i.type === 'Phone Call'; }).length;
@@ -93,7 +99,7 @@ EnaraApp.renderLog = function() {
       '<option>Updated</option><option>In Progress</option><option>Completed</option>' +
     '</select>' +
     '<select id="log-filter-patient"><option value="">All Patients</option>' +
-      EnaraApp.PATIENTS.map(function(p) {
+      patients.map(function(p) {
         return '<option value="' + p.id + '">' + p.name + '</option>';
       }).join('') +
     '</select>' +
@@ -152,7 +158,7 @@ EnaraApp._filterLog = function() {
   var outcomeFilter = document.getElementById('log-filter-outcome').value;
   var patientFilter = document.getElementById('log-filter-patient').value;
 
-  var filtered = EnaraApp.INTERVENTIONS.filter(function(e) {
+  var filtered = (EnaraApp.state.interventions || []).filter(function(e) {
     if (typeFilter && e.type !== typeFilter) return false;
     if (outcomeFilter && e.outcome !== outcomeFilter) return false;
     if (patientFilter && e.patientId !== patientFilter) return false;

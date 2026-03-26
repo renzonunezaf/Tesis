@@ -150,22 +150,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Tags */
-.drawer-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: var(--space-md);
-}
-.drawer-tag {
-  padding: 4px 12px;
-  border-radius: var(--radius-xs);
-  font-size: 0.72rem;
-  font-weight: var(--fw-medium);
-}
-.drawer-tag--negative { background: #FFF5F5; color: #C53030; border: 1px solid #FED7D7; }
-.drawer-tag--positive { background: #F0FFF4; color: #276749; border: 1px solid #C6F6D5; }
-
 /* Action button */
 .drawer-action {
   margin-top: var(--space-sm);
@@ -208,3 +192,13 @@
   display: block;
   margin-top: 4px;
 }
+
+/* ── Inline-to-class migrations ── */
+.drawer-risk__badges { display: flex; gap: 6px; margin-bottom: 3px; }
+.drawer-risk__meta { font-size: 0.75rem; color: var(--color-text-muted); }
+.drawer-hint { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 10px; }
+.drawer-hint--sm { font-size: 0.68rem; color: var(--color-text-muted); margin-bottom: 8px; }
+.drawer-hint__protect { color: var(--color-success); }
+.drawer-hint__risk { color: var(--color-danger); }
+.drawer-action--hero { background: var(--grad-hero); margin-top: 6px; }
+.shap-panel__bars { margin-top: 8px; }

@@ -2,12 +2,17 @@
  * ==========================================================
  * KPI MODULE v2
  * Renders metric cards with animated SVG ring charts.
+ * Receives data from api.js — does NOT read globals.
  * ==========================================================
  */
-EnaraApp.renderKPIs = function() {
+
+/**
+ * @param {Array} kpiData - Array of KPI objects from api.getKPIs()
+ */
+EnaraApp.renderKPIs = function(kpiData) {
   var container = document.getElementById('kpi-row');
 
-  container.innerHTML = EnaraApp.KPI_DATA.map(function(kpi, i) {
+  container.innerHTML = kpiData.map(function(kpi, i) {
     var heroClass = kpi.hero ? ' kpi--hero' : '';
     var ringColor = kpi.hero ? '#fff' : kpi.ringColor || 'var(--color-primary)';
     var pct = kpi.ringPct || 0;

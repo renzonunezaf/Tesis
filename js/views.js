@@ -85,13 +85,9 @@ EnaraApp.switchView = function(viewName) {
   } else if (viewName === 'profile') {
     if (typeof EnaraApp.animateProfileGauges === 'function') EnaraApp.animateProfileGauges();
   } else if (viewName === 'log') {
-    if (typeof EnaraApp.renderLog === 'function') EnaraApp.renderLog();
+    /* Log entries animate via CSS on render — no JS trigger needed */
   } else if (viewName === 'model') {
-    /* Render on first visit, animate on every visit */
-    if (!EnaraApp.state._modelRendered) {
-      if (typeof EnaraApp.renderModelPerformance === 'function') EnaraApp.renderModelPerformance();
-      EnaraApp.state._modelRendered = true;
-    }
+    /* Model is already rendered by loadDashboard — animate on every visit */
     if (typeof EnaraApp.animateModelPerformance === 'function') EnaraApp.animateModelPerformance(target);
   }
 };

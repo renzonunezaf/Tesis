@@ -3,6 +3,7 @@
  * FILTERS MODULE
  * Handles search and dropdown filter logic for the patient
  * intervention queue. All filtering is client-side.
+ * Reads from EnaraApp.state.allPatients (set during init).
  * ==========================================================
  */
 EnaraApp.applyFilters = function() {
@@ -14,7 +15,9 @@ EnaraApp.applyFilters = function() {
   var modality = document.getElementById('filter-modality').value;
   var owner    = document.getElementById('filter-owner').value;
 
-  EnaraApp.state.filteredPatients = EnaraApp.PATIENTS.filter(function(p) {
+  var source = EnaraApp.state.allPatients || [];
+
+  EnaraApp.state.filteredPatients = source.filter(function(p) {
     if (search && !p.name.toLowerCase().includes(search) && !p.id.toLowerCase().includes(search)) return false;
     if (risk     && p.riskLevel !== risk)     return false;
     if (status   && p.status   !== status)   return false;
