@@ -27,33 +27,44 @@
 </head>
 <body>
 
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
   <!-- ====================================================
        SIDEBAR NAVIGATION
        ==================================================== -->
-  <nav class="sidebar">
-    <div class="sidebar__brand">enara<span>.</span></div>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <svg class="sidebar__logo" viewBox="0 0 498 102" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M187.811 101.076V50.5428C187.811 33.4343 175.562 19.5085 158.442 19.5085C141.322 19.5085 129.072 33.4343 129.072 50.5428V101.076H109.575V50.5428C109.575 22.6782 130.579 0.00976562 158.442 0.00976562C186.304 0.00976562 207.308 22.6782 207.308 50.5428V101.076H187.811Z"/>
+        <path d="M300.067 101.076V90.5535L297.079 92.554C288.753 98.1269 279.063 101.076 269.035 101.076C241.172 101.076 218.506 78.4074 218.506 50.5428C218.506 22.6782 241.172 0.00976562 269.035 0.00976562C296.897 0.00976562 318.46 21.3402 319.512 48.5812L319.564 49.8803V101.076H300.067ZM269.048 19.5085C251.941 19.5085 238.016 33.4343 238.016 50.5428C238.016 67.6513 251.941 81.5771 269.048 81.5771C286.155 81.5771 300.08 67.6513 300.08 50.5428C300.08 33.4343 286.155 19.5085 269.048 19.5085Z"/>
+        <path d="M478.503 101.076V90.5535L475.515 92.554C467.189 98.1269 457.499 101.076 447.471 101.076C419.608 101.076 396.942 78.4074 396.942 50.5428C396.942 22.6782 419.608 0.00976562 447.471 0.00976562C475.333 0.00976562 496.896 21.3402 497.948 48.5812L498 49.8803V101.076H478.503ZM447.484 19.5085C430.377 19.5085 416.452 33.4343 416.452 50.5428C416.452 67.6513 430.377 81.5771 447.484 81.5771C464.591 81.5771 478.516 67.6513 478.516 50.5428C478.516 33.4343 464.591 19.5085 447.484 19.5085Z"/>
+        <path d="M381.419 0.00976562H381.302C353.439 0.00976562 330.773 22.6782 330.773 50.5428V101.076H350.27V50.5428C350.27 33.4343 364.195 19.5085 381.302 19.5085H395.006V0.00976562H381.432H381.419Z"/>
+        <path d="M77.8807 65.1821C74.3995 71.7163 68.6841 76.7956 61.6438 79.5106C50.1221 83.9274 37.0937 81.1215 28.4427 72.3399L26.3903 70.2484L101.197 41.5264L97.7027 32.4201C87.7137 6.41313 58.4354 -6.62932 32.4304 3.36037C6.41249 13.3501 -6.62897 42.6306 3.35996 68.6506C13.3489 94.6575 42.6272 107.7 68.6322 97.7103C79.7122 93.4624 88.7529 85.5772 94.4683 75.4576L77.8807 65.1821ZM19.5189 49.1259C20.0774 36.8109 27.8841 26.0028 39.3928 21.573C50.9145 17.1563 63.943 19.9622 72.607 28.7438L74.6593 30.8353L19.389 52.0617L19.5189 49.1389V49.1259Z"/>
+      </svg>
+    </div>
     <div class="sidebar__app-name">Patient Retention Intelligence</div>
 
     <div class="sidebar__section">Operations</div>
     <div class="sidebar__nav">
       <a href="#" class="is-active" data-view="operations">
-        <span class="nav-icon">📊</span>Dashboard<span class="sidebar__badge">38</span>
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="11" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="1.5" y="11" width="5.5" height="5.5" rx="1.2"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2"/></svg></span>Dashboard<span class="sidebar__badge">38</span>
       </a>
-      <a href="#"><span class="nav-icon">👥</span>Patient Queue</a>
-      <a href="#" data-view="log"><span class="nav-icon">📋</span>Intervention Log</a>
+      <a href="#"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="5" r="2.8"/><path d="M1.5 16c0-3.3 2.2-5 5-5s5 1.7 5 5"/><circle cx="13.5" cy="5.5" r="2"/><path d="M16.5 16c0-2.5-1.5-4-3.5-4"/></svg></span>Patient Queue</a>
+      <a href="#" data-view="log"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M6 6h6M6 9.5h4M6 13h2"/></svg></span>Intervention Log</a>
     </div>
 
     <div class="sidebar__section">Insights</div>
     <div class="sidebar__nav">
-      <a href="#" data-view="analytics"><span class="nav-icon">📈</span>Risk Insights</a>
-      <a href="#" data-view="fairness"><span class="nav-icon">⚖️</span>Fairness Review</a>
-      <a href="#" data-view="model"><span class="nav-icon">🧠</span>Model Performance</a>
+      <a href="#" data-view="analytics"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 13.5L6 9l3 2.5 3.5-5L16 9"/><path d="M12.5 6.5L16 6.5V10"/></svg></span>Risk Insights</a>
+      <a href="#" data-view="fairness"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v14M5.5 16h7"/><path d="M3.5 5.5h11"/><path d="M2 5.5L4 3M16 5.5L14 3"/><path d="M2 5.5c0 2.2 1.3 3.5 2.5 3.5S6.5 5.5 6.5 5.5"/><path d="M16 5.5c0 2.2-1.3 3.5-2.5 3.5S11.5 5.5 11.5 5.5"/></svg></span>Fairness Review</a>
+      <a href="#" data-view="model"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><path d="M9 1.5v2.5M9 14v2.5M1.5 9H4M14 9h2.5"/><path d="M3.7 3.7l1.8 1.8M12.5 12.5l1.8 1.8M3.7 14.3l1.8-1.8M12.5 5.5l1.8-1.8"/></svg></span>Model Performance</a>
     </div>
 
     <div class="sidebar__section">Admin</div>
     <div class="sidebar__nav">
-      <a href="#"><span class="nav-icon">👤</span>Patient Profiles</a>
-      <a href="#"><span class="nav-icon">⚙️</span>Settings</a>
+      <a href="#"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="3.5"/><path d="M2.5 16c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg></span>Patient Profiles</a>
+      <a href="#"><span class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="2.2"/><path d="M14.5 9c0-.4-.04-.7-.1-1.1l1.6-1.2-1.5-2.6-1.9.6c-.5-.5-1.2-.8-1.9-1L10.3 2h-3l-.4 1.7c-.7.2-1.3.5-1.9 1l-1.9-.6L1.6 6.7 3.2 8c-.06.3-.1.7-.1 1s.04.7.1 1L1.6 11.2l1.5 2.6 1.9-.6c.5.5 1.2.8 1.9 1l.4 1.8h3l.4-1.7c.7-.2 1.3-.5 1.9-1l1.9.6 1.5-2.6-1.6-1.3c.06-.3.1-.7.1-1z"/></svg></span>Settings</a>
     </div>
 
     <div class="sidebar__footer">
@@ -71,6 +82,9 @@
     <!-- Top Header Bar -->
     <header class="topbar">
       <div class="topbar__left">
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h16M3 11h16M3 16h16"/></svg>
+        </button>
         <h1 class="topbar__title">Dropout Risk Dashboard</h1>
         <div class="topbar__meta">
           <div class="topbar__meta-item">📅 Mar 24–30, 2026</div>

@@ -19,11 +19,13 @@
 
 .sidebar__brand {
   padding: 22px 22px 10px;
-  font-size: 1.4rem;
-  font-weight: var(--fw-bold);
-  letter-spacing: -0.5px;
 }
-.sidebar__brand span { color: var(--color-light-blue); }
+.sidebar__logo {
+  width: 120px;
+  height: auto;
+  color: #fff;
+  display: block;
+}
 
 .sidebar__app-name {
   font-size: 0.58rem;
@@ -68,7 +70,18 @@
   font-weight: var(--fw-medium);
   box-shadow: inset 3px 0 0 var(--color-light-blue);
 }
-.sidebar__nav .nav-icon { width: 20px; text-align: center; font-size: 1rem; }
+.sidebar__nav .nav-icon {
+  width: 20px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+.sidebar__nav a.is-active .nav-icon,
+.sidebar__nav a:hover .nav-icon { opacity: 1; }
+.sidebar__nav .nav-icon svg { display: block; }
 .sidebar__badge {
   margin-left: auto;
   background: var(--color-danger);
@@ -99,6 +112,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  max-width: calc(100vw - var(--sidebar-width));
+  overflow-x: hidden;
 }
 
 /* --- Topbar --- */
@@ -202,6 +217,144 @@
   margin-bottom: var(--space-md);
 }
 
+/* --- Hamburger Button --- */
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--ease);
+}
+.hamburger:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* --- Sidebar Overlay (mobile) --- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 61, 77, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 19;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.sidebar-overlay.is-open {
+  display: block;
+  opacity: 1;
+}
+
 @media (max-width: 1100px) {
   .panels { grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: Tablet (<1024px) ── */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 220px;
+  }
+  .topbar__meta { display: none; }
+  .content { padding: var(--space-md) var(--space-lg) var(--space-xl); }
+}
+
+/* ── Responsive: Mobile (<768px) ── */
+@media (max-width: 768px) {
+  /* Show hamburger */
+  .hamburger { display: flex; }
+
+  /* Sidebar: hidden by default, slide-in */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: none;
+  }
+  .sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Main content: full width */
+  .main {
+    margin-left: 0;
+    max-width: 100vw;
+  }
+
+  /* Topbar adjustments */
+  .topbar {
+    padding: 0 var(--space-md);
+  }
+  .topbar__title {
+    font-size: 0.92rem;
+  }
+  .view-tabs {
+    display: none;
+  }
+
+  /* Content containment */
+  .content {
+    padding: var(--space-md) var(--space-md) var(--space-lg);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Panels single column */
+  .panels {
+    grid-template-columns: 1fr;
+  }
+
+  /* Table scroll contained */
+  .table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  /* Data table: allow horizontal scroll inside wrap */
+  .data-table {
+    min-width: 700px;
+  }
+
+  /* Filter bar wrap */
+  .filter-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .filter-bar__search {
+    width: 100%;
+  }
+  .filter-bar__select {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* KPI row mobile grid */
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ── Responsive: Small phone (<480px) ── */
+@media (max-width: 480px) {
+  .topbar__right {
+    gap: 6px;
+  }
+  .topbar__avatar {
+    display: none;
+  }
+  .content {
+    padding: var(--space-sm) var(--space-sm) var(--space-md);
+  }
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
 }

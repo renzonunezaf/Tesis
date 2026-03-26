@@ -79,12 +79,31 @@ EnaraApp.renderTable = function() {
   document.getElementById('filter-count').textContent =
     state.filteredPatients.length + ' of ' + EnaraApp.PATIENTS.length + ' patients';
 
-  /* Bind row click events */
+  /* Bind row click events (desktop + mobile touch) */
   tbody.querySelectorAll('tr').forEach(function(tr) {
-    tr.addEventListener('click', function() {
+    function handleRowTap() {
       state.selectedPatientId = tr.dataset.id;
       EnaraApp.renderTable();
       EnaraApp.openDrawer(state.selectedPatientId);
+    }
+
+    /* Desktop click */
+    tr.addEventListener('click', handleRowTap);
+
+    /* Mobile: use touchend to avoid scroll-vs-tap conflict */
+    var touchStartY = 0;
+    tr.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    tr.addEventListener('touchend', function(e) {
+      var touchEndY = e.changedTouches[0].clientY;
+      var delta = Math.abs(touchEndY - touchStartY);
+      /* Only trigger if not scrolling (< 10px vertical movement) */
+      if (delta < 10) {
+        e.preventDefault();
+        handleRowTap();
+      }
     });
   });
 };

@@ -106,6 +106,8 @@
   border-bottom: 1px solid var(--color-border-light);
   cursor: pointer;
   transition: all var(--ease);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(56,159,186,0.1);
 }
 .data-table tbody tr:last-child { border-bottom: none; }
 .data-table tbody tr:hover {
