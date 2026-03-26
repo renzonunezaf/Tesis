@@ -85,22 +85,22 @@ EnaraApp.renderFairness = function() {
   /* ── Disclaimer ── */
   html += '<div class="fairness-disclaimer"><div><strong>Note on Race/Ethnicity:</strong> This dimension is used exclusively for fairness auditing. It is never surfaced in operational views nor used as a prediction feature. All subgroup comparisons are for internal model governance only.</div></div>';
 
-  /* ── Row 1: Age lollipop + Sex paired gauges ── */
+  /* ── Row 1: Age lollipop + Region map ── */
   html += '<div class="fairness-section-title">Subgroup Performance</div>' +
   '<div class="fair-row fair-row--2col">' +
     '<div class="fair-card fair-card--tall"><div class="fair-card__title">Age Group — Dot Plot</div>' +
       '<div class="fair-card__sub">Recall, Precision, FPR across age cohorts</div>' +
       '<div id="fair-age-dots"></div></div>' +
+    '<div class="fair-card fair-card--tall"><div class="fair-card__title">Region — US Performance Map</div>' +
+      '<div class="fair-card__sub">State map colored by regional model performance</div>' +
+      '<div id="fair-region-map"></div></div>' +
+  '</div>';
+
+  /* ── Row 2: Sex paired gauges + Ethnicity dot plot ── */
+  html += '<div class="fair-row fair-row--2col">' +
     '<div class="fair-card"><div class="fair-card__title">Sex — Parity Comparison</div>' +
       '<div class="fair-card__sub">Female vs Male metric-by-metric</div>' +
       '<div id="fair-sex-rings"></div></div>' +
-  '</div>';
-
-  /* ── Row 2: Region map + Ethnicity dot plot ── */
-  html += '<div class="fair-row fair-row--2col">' +
-    '<div class="fair-card fair-card--tall"><div class="fair-card__title">Region — US Performance Map</div>' +
-      '<div class="fair-card__sub">State tile map colored by regional model performance</div>' +
-      '<div id="fair-region-map"></div></div>' +
     '<div class="fair-card fair-card--tall"><div class="fair-card__title">Race/Ethnicity — Connected Dot Plot</div>' +
       '<div class="fair-card__sub">Metric spread across subgroups (audit only)</div>' +
       '<div id="fair-eth-dots"></div></div>' +
@@ -255,86 +255,117 @@ EnaraApp._renderSexRings = function(g) {
   }).join('');
 };
 
-/* ── Region: US tile cartogram (SVG) ── */
+/* ── Region: US geographic map (real SVG paths + interactivity) ── */
 EnaraApp._renderRegionMap = function(g) {
   var el = document.getElementById('fair-region-map');
+  var states = EnaraApp.US_STATES;
 
-  /* Region definitions with colors derived from performance */
-  var regionMap = {
-    west:      { label: 'West Coast', data: g.rows[0], color: '#38A169' },
-    east:      { label: 'East Coast', data: g.rows[1], color: '#389FBA' },
-    midwest:   { label: 'Midwest',    data: g.rows[2], color: '#DD6B20' },
-    south:     { label: 'South',      data: g.rows[3], color: '#E53E3E' }
+  /* Map region keys to data rows */
+  var regionData = {
+    west:    g.rows[0],
+    east:    g.rows[1],
+    midwest: g.rows[2],
+    south:   g.rows[3]
   };
 
-  /* State tile positions [col, row, abbreviation, region] */
-  var states = [
-    [0,0,'AK','west'],
-    [10,0,'ME','east'],
-    [9,1,'VT','east'], [10,1,'NH','east'],
-    [1,2,'WA','west'], [2,2,'MT','west'], [3,2,'ND','midwest'], [4,2,'MN','midwest'],
-      [5,2,'WI','midwest'], [7,2,'MI','midwest'], [8,2,'NY','east'], [9,2,'MA','east'],
-      [10,2,'CT','east'], [11,2,'RI','east'],
-    [1,3,'OR','west'], [2,3,'ID','west'], [3,3,'SD','midwest'], [4,3,'IA','midwest'],
-      [5,3,'IL','midwest'], [6,3,'IN','midwest'], [7,3,'OH','midwest'], [8,3,'PA','east'],
-      [9,3,'NJ','east'],
-    [1,4,'CA','west'], [2,4,'NV','west'], [3,4,'WY','west'], [4,4,'NE','midwest'],
-      [5,4,'MO','midwest'], [6,4,'KY','south'], [7,4,'WV','south'], [8,4,'VA','south'],
-      [9,4,'MD','east'], [10,4,'DE','east'],
-    [2,5,'AZ','west'], [3,5,'UT','west'], [4,5,'CO','west'], [5,5,'KS','midwest'],
-      [6,5,'AR','south'], [7,5,'TN','south'], [8,5,'NC','south'], [9,5,'SC','south'],
-      [10,5,'DC','east'],
-    [3,6,'NM','west'], [5,6,'OK','south'], [6,6,'LA','south'], [7,6,'MS','south'],
-      [8,6,'AL','south'], [9,6,'GA','south'],
-    [1,7,'HI','west'], [5,7,'TX','south'], [9,7,'FL','south']
-  ];
+  var regionLabels = {
+    west: 'West Coast', east: 'East Coast',
+    midwest: 'Midwest', south: 'South'
+  };
 
-  var tileSize = 28;
-  var gap = 3;
-  var step = tileSize + gap;
-  var padL = 8, padT = 8;
-  var W = 12 * step + padL + 20;
-  var H = 8 * step + padT + 40;
+  var regionColors = {
+    west:    '#38A169',
+    east:    '#389FBA',
+    midwest: '#DD6B20',
+    south:   '#E53E3E'
+  };
 
-  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="fair-map-svg">';
+  /* Use the real viewBox from the SVG map data */
+  var vb = EnaraApp.US_MAP_VIEWBOX;
+  var svg = '<svg viewBox="' + vb + '" class="fair-map-svg" preserveAspectRatio="xMidYMid meet">';
 
-  /* Render state tiles */
-  states.forEach(function(s, i) {
-    var col = s[0], row = s[1], abbr = s[2], reg = s[3];
-    var x = padL + col * step;
-    var y = padT + row * step;
-    var info = regionMap[reg];
-    var opacity = 0.75;
-
-    svg += '<g class="map-tile" data-region="' + reg + '" data-state="' + abbr + '">' +
-      '<rect x="' + x + '" y="' + y + '" width="' + tileSize + '" height="' + tileSize + '" rx="4" ' +
-        'fill="' + info.color + '" opacity="0" class="map-tile-rect"/>' +
-      '<text x="' + (x + tileSize / 2) + '" y="' + (y + tileSize / 2 + 4) + '" ' +
-        'text-anchor="middle" font-size="8" font-weight="600" fill="#fff" opacity="0" class="map-tile-label">' +
-        abbr + '</text>' +
-    '</g>';
+  /* Render each state path */
+  states.forEach(function(st, i) {
+    var color = regionColors[st.region] || '#ccc';
+    svg += '<path d="' + st.d + '" ' +
+      'fill="' + color + '" stroke="var(--color-card)" stroke-width="1.5" ' +
+      'class="map-state-path" data-idx="' + i + '" ' +
+      'data-state="' + st.id + '" data-name="' + st.name + '" data-region="' + st.region + '" ' +
+      'opacity="0" style="cursor:pointer"/>';
   });
 
   svg += '</svg>';
 
-  /* Legend with metrics */
+  /* Info panel (shown on hover/click) */
+  var infoPanel = '<div class="fair-map-info" id="fair-map-info">' +
+    '<div class="fair-map-info__state" id="map-info-state">Hover over a state</div>' +
+    '<div class="fair-map-info__region" id="map-info-region"></div>' +
+    '<div class="fair-map-info__metrics" id="map-info-metrics"></div>' +
+  '</div>';
+
+  /* Legend */
   var legend = '<div class="fair-map-legend">' +
-    g.rows.map(function(row, ri) {
-      var keys = Object.keys(regionMap);
-      var info = regionMap[keys[ri]];
+    Object.keys(regionData).map(function(key) {
+      var row = regionData[key];
+      var color = regionColors[key];
+      var label = regionLabels[key];
+      var count = states.filter(function(s) { return s.region === key; }).length;
       return '<div class="fair-map-legend-item">' +
-        '<span class="fair-legend-dot" style="background:' + info.color + '"></span>' +
-        '<span class="fair-map-legend-name">' + row.label + '</span>' +
+        '<span class="fair-legend-dot" style="background:' + color + '"></span>' +
+        '<span class="fair-map-legend-name">' + label + '</span>' +
         '<span class="fair-map-legend-metrics">' +
           '<span class="fair-map-metric">R:' + row.recall.toFixed(2) + '</span>' +
           '<span class="fair-map-metric">P:' + row.precision.toFixed(2) + '</span>' +
           '<span class="fair-map-metric">FPR:' + row.fpr.toFixed(2) + '</span>' +
+          '<span class="fair-map-metric fair-map-metric--n">' + count + ' states</span>' +
         '</span>' +
       '</div>';
     }).join('') +
   '</div>';
 
-  el.innerHTML = svg + legend;
+  el.innerHTML = infoPanel + svg + legend;
+
+  /* ── Interactivity: hover + click ── */
+  var infoState = document.getElementById('map-info-state');
+  var infoRegion = document.getElementById('map-info-region');
+  var infoMetrics = document.getElementById('map-info-metrics');
+  var activeState = null;
+
+  el.querySelectorAll('.map-state-path').forEach(function(path) {
+    path.addEventListener('mouseenter', function() {
+      var region = path.dataset.region;
+      var row = regionData[region];
+      var color = regionColors[region];
+      infoState.textContent = path.dataset.name;
+      infoState.style.color = color;
+      infoRegion.textContent = regionLabels[region] + ' region';
+      infoMetrics.innerHTML =
+        '<span>Recall: <strong>' + row.recall.toFixed(2) + '</strong></span>' +
+        '<span>Precision: <strong>' + row.precision.toFixed(2) + '</strong></span>' +
+        '<span>FPR: <strong>' + row.fpr.toFixed(2) + '</strong></span>' +
+        '<span>n = <strong>' + row.n + '</strong> patients</span>';
+      path.setAttribute('opacity', '1');
+      path.style.filter = 'brightness(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.3))';
+    });
+
+    path.addEventListener('mouseleave', function() {
+      if (path !== activeState) {
+        path.setAttribute('opacity', '0.82');
+        path.style.filter = '';
+      }
+    });
+
+    path.addEventListener('click', function() {
+      if (activeState && activeState !== path) {
+        activeState.setAttribute('opacity', '0.82');
+        activeState.style.filter = '';
+        activeState.style.strokeWidth = '1.5';
+      }
+      activeState = path;
+      path.style.strokeWidth = '3';
+      path.style.filter = 'brightness(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.3))';
+    });
+  });
 };
 
 /* ── Ethnicity: Connected dot plot (SVG) ── */
@@ -482,11 +513,8 @@ EnaraApp.animateGauges = function() {
   document.querySelectorAll('.fair-sex-ring').forEach(function(r) {
     r.style.transition = 'none'; r.style.strokeDashoffset = (2 * Math.PI * 22).toFixed(1);
   });
-  /* Reset map tiles */
-  document.querySelectorAll('.map-tile-rect').forEach(function(t) {
-    t.style.transition = 'none'; t.setAttribute('opacity', '0');
-  });
-  document.querySelectorAll('.map-tile-label').forEach(function(t) {
+  /* Reset map state paths */
+  document.querySelectorAll('.map-state-path').forEach(function(t) {
     t.style.transition = 'none'; t.setAttribute('opacity', '0');
   });
   /* Reset parity + heatmap cells */
@@ -524,14 +552,10 @@ EnaraApp.animateGauges = function() {
       r.style.transition = 'stroke-dashoffset 0.9s cubic-bezier(0.4,0,0.2,1) ' + (300 + i * 100) + 'ms';
       r.style.strokeDashoffset = r.dataset.target;
     });
-    /* Map tiles (staggered cascade from top-left) */
-    document.querySelectorAll('.map-tile-rect').forEach(function(t, i) {
-      t.style.transition = 'opacity 0.3s ease ' + (300 + i * 15) + 'ms';
-      t.setAttribute('opacity', '0.75');
-    });
-    document.querySelectorAll('.map-tile-label').forEach(function(t, i) {
-      t.style.transition = 'opacity 0.3s ease ' + (500 + i * 15) + 'ms';
-      t.setAttribute('opacity', '1');
+    /* Map state paths (staggered fade-in) */
+    document.querySelectorAll('.map-state-path').forEach(function(t, i) {
+      t.style.transition = 'opacity 0.4s ease ' + (300 + i * 20) + 'ms';
+      t.setAttribute('opacity', '0.82');
     });
     /* Parity cells */
     document.querySelectorAll('.heatmap-cell').forEach(function(c, i) {
