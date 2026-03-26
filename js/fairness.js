@@ -356,6 +356,7 @@ EnaraApp._renderRegionMap = function(g) {
     });
 
     path.addEventListener('click', function() {
+      /* Reset previous active */
       if (activeState && activeState !== path) {
         activeState.setAttribute('opacity', '0.82');
         activeState.style.filter = '';
@@ -364,7 +365,170 @@ EnaraApp._renderRegionMap = function(g) {
       activeState = path;
       path.style.strokeWidth = '3';
       path.style.filter = 'brightness(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.3))';
+
+      /* Open rich popup */
+      EnaraApp._openStatePopup(path.dataset.state, path.dataset.name, path.dataset.region, regionData, regionColors, regionLabels);
     });
+  });
+};
+
+/* ── State popup modal with SVG graphics ── */
+EnaraApp._openStatePopup = function(stateId, stateName, regionKey, regionData, regionColors, regionLabels) {
+  /* Remove previous popup if any */
+  var existing = document.getElementById('state-popup-overlay');
+  if (existing) existing.remove();
+
+  var row = regionData[regionKey];
+  var color = regionColors[regionKey];
+  var label = regionLabels[regionKey];
+
+  /* Overall averages for comparison */
+  var avg = { recall: 0.88, precision: 0.85, fpr: 0.07 };
+
+  /* Simulated state-level data (seeded from state abbreviation) */
+  var seed = 0;
+  for (var c = 0; c < stateId.length; c++) seed += stateId.charCodeAt(c);
+  var statePatients = 15 + (seed * 7) % 120;
+  var stateHighRisk = Math.round(statePatients * (0.05 + (seed % 20) / 100));
+  var stateCoverage = 78 + (seed * 3) % 20;
+  var stateRetained = 68 + (seed * 5) % 25;
+
+  /* ── Build comparison bar chart SVG ── */
+  var metrics = [
+    { label: 'Recall',    region: row.recall,    overall: avg.recall,    max: 1 },
+    { label: 'Precision', region: row.precision,  overall: avg.precision, max: 1 },
+    { label: 'FPR',       region: row.fpr,        overall: avg.fpr,       max: 0.15 }
+  ];
+
+  var barW = 280, barH = 130, padL = 70, padT = 8, barGap = 38;
+  var barSvg = '<svg viewBox="0 0 ' + barW + ' ' + barH + '" class="popup-bar-svg">';
+
+  metrics.forEach(function(m, i) {
+    var y = padT + i * barGap;
+    var trackW = barW - padL - 30;
+    var regPct = (m.label === 'FPR') ? (m.region / m.max) : (m.region / m.max);
+    var avgPct = (m.label === 'FPR') ? (m.overall / m.max) : (m.overall / m.max);
+    var regW = regPct * trackW;
+    var avgW = avgPct * trackW;
+    var regColor = color;
+    var isBad = (m.label === 'FPR') ? m.region > m.overall : m.region < m.overall;
+
+    /* Label */
+    barSvg += '<text x="' + (padL - 6) + '" y="' + (y + 10) + '" text-anchor="end" font-size="10" font-weight="500" fill="var(--color-text-secondary)">' + m.label + '</text>';
+
+    /* Track */
+    barSvg += '<rect x="' + padL + '" y="' + (y + 2) + '" width="' + trackW + '" height="10" rx="5" fill="var(--color-border-light)"/>';
+
+    /* Overall avg line */
+    barSvg += '<line x1="' + (padL + avgW) + '" y1="' + y + '" x2="' + (padL + avgW) + '" y2="' + (y + 14) + '" stroke="var(--color-text-muted)" stroke-width="2" stroke-dasharray="3,2"/>';
+
+    /* Region bar */
+    barSvg += '<rect x="' + padL + '" y="' + (y + 2) + '" width="' + regW + '" height="10" rx="5" fill="' + regColor + '" opacity="0.8"/>';
+
+    /* Values */
+    barSvg += '<text x="' + (padL + trackW + 6) + '" y="' + (y + 11) + '" font-size="10" font-weight="700" fill="' + (isBad ? 'var(--color-danger)' : 'var(--color-success)') + '">' + m.region.toFixed(2) + '</text>';
+
+    /* Sub-label for avg */
+    barSvg += '<text x="' + (padL + avgW) + '" y="' + (y + 26) + '" text-anchor="middle" font-size="7" fill="var(--color-text-light)">avg ' + m.overall.toFixed(2) + '</text>';
+  });
+
+  barSvg += '</svg>';
+
+  /* ── Build mini gauge SVGs for state stats ── */
+  function miniGauge(value, maxVal, gaugeColor, labelText) {
+    var pct = value / maxVal;
+    var r = 24, circ = 2 * Math.PI * r;
+    var offset = circ - pct * circ;
+    return '<div class="popup-stat">' +
+      '<svg width="60" height="60" viewBox="0 0 60 60">' +
+        '<circle cx="30" cy="30" r="' + r + '" fill="none" stroke="var(--color-border-light)" stroke-width="5"/>' +
+        '<circle cx="30" cy="30" r="' + r + '" fill="none" stroke="' + gaugeColor + '" stroke-width="5" ' +
+          'stroke-linecap="round" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" ' +
+          'transform="rotate(-90 30 30)"/>' +
+        '<text x="30" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="' + gaugeColor + '">' + value + '</text>' +
+        '<text x="30" y="39" text-anchor="middle" font-size="7" fill="var(--color-text-muted)">' + (maxVal > 1 ? '' : '%') + '</text>' +
+      '</svg>' +
+      '<div class="popup-stat__label">' + labelText + '</div>' +
+    '</div>';
+  }
+
+  /* ── Parity check indicators ── */
+  function parityDot(val, threshold, metric) {
+    var isFpr = metric === 'FPR';
+    var diff = isFpr ? (val - avg[metric.toLowerCase()]) : (avg[metric.toLowerCase()] - val);
+    var status = Math.abs(diff) < 0.03 ? 'pass' : Math.abs(diff) < 0.06 ? 'warn' : 'fail';
+    var sym = status === 'pass' ? '✓' : status === 'warn' ? '⚠' : '✗';
+    return '<span class="popup-parity popup-parity--' + status + '">' + sym + ' ' + metric + '</span>';
+  }
+
+  /* ── Assemble popup HTML ── */
+  var html = '<div class="state-popup-overlay" id="state-popup-overlay">' +
+    '<div class="state-popup">' +
+      '<div class="state-popup__header" style="border-color:' + color + '">' +
+        '<div class="state-popup__title">' +
+          '<span class="state-popup__name">' + stateName + '</span>' +
+          '<span class="state-popup__abbr">' + stateId + '</span>' +
+        '</div>' +
+        '<div class="state-popup__region" style="background:' + color + '">' + label + '</div>' +
+        '<button class="state-popup__close" id="state-popup-close">✕</button>' +
+      '</div>' +
+
+      '<div class="state-popup__body">' +
+        /* Section 1: Metrics comparison */
+        '<div class="popup-section">' +
+          '<div class="popup-section__title">Regional Model Performance vs Overall</div>' +
+          '<div class="popup-section__sub">Dashed line = overall average · Solid bar = ' + label + '</div>' +
+          barSvg +
+        '</div>' +
+
+        /* Section 2: State stats gauges */
+        '<div class="popup-section">' +
+          '<div class="popup-section__title">Estimated State Metrics</div>' +
+          '<div class="popup-gauges">' +
+            miniGauge(statePatients, 150, color, 'Patients') +
+            miniGauge(stateHighRisk, statePatients, 'var(--color-danger)', 'High Risk') +
+            miniGauge(stateCoverage, 100, 'var(--color-success)', 'Coverage %') +
+            miniGauge(stateRetained, 100, 'var(--color-primary)', 'Retained %') +
+          '</div>' +
+        '</div>' +
+
+        /* Section 3: Parity check */
+        '<div class="popup-section">' +
+          '<div class="popup-section__title">Parity Status</div>' +
+          '<div class="popup-parity-row">' +
+            parityDot(row.recall, avg.recall, 'Recall') +
+            parityDot(row.precision, avg.precision, 'Precision') +
+            parityDot(row.fpr, avg.fpr, 'FPR') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="popup-note">Data shown reflects regional model performance applied to ' + stateName + '. Individual state-level model tuning is not performed.</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  /* Animate in */
+  requestAnimationFrame(function() {
+    document.getElementById('state-popup-overlay').classList.add('is-open');
+  });
+
+  /* Close handlers */
+  function closePopup() {
+    var overlay = document.getElementById('state-popup-overlay');
+    if (overlay) {
+      overlay.classList.remove('is-open');
+      setTimeout(function() { overlay.remove(); }, 300);
+    }
+  }
+
+  document.getElementById('state-popup-close').addEventListener('click', closePopup);
+  document.getElementById('state-popup-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePopup();
+  });
+  document.addEventListener('keydown', function handler(e) {
+    if (e.key === 'Escape') { closePopup(); document.removeEventListener('keydown', handler); }
   });
 };
 
