@@ -200,3 +200,11 @@
     padding: var(--space-md) 16px 24px;
   }
 }
+
+/* ── Tornado / butterfly chart for factors ── */
+.tornado-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 4px;
+}

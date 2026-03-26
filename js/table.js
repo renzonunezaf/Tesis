@@ -41,12 +41,6 @@ EnaraApp.renderTable = function() {
     /* Build risk gauge */
     var gauge = EnaraApp.buildRiskGauge(p.risk, riskColor);
 
-    /* Show top 3 factors as chips */
-    var chips = p.factors.slice(0, 3).map(function(f) {
-      var chipClass = f.type === 'negative' ? 'chip--negative' : 'chip--positive';
-      return '<span class="chip ' + chipClass + '">' + f.text + '</span>';
-    }).join('');
-
     /* Days since: bold + red if > 14 */
     var daysStyle = p.daysSince > 14
       ? 'font-weight:600;color:var(--color-danger)'
@@ -68,7 +62,6 @@ EnaraApp.renderTable = function() {
       '<td><span class="badge ' + priBadge + '">' + p.priority + '</span></td>' +
       '<td style="font-size:.78rem;color:var(--color-text-secondary)">~' + p.dropoutWindow + 'd</td>' +
       '<td><span style="' + daysStyle + '">' + p.daysSince + 'd</span></td>' +
-      '<td>' + chips + '</td>' +
       '<td style="font-size:.76rem;' + ownerStyle + '">' + p.owner + '</td>' +
       '<td><span class="badge ' + stsBadge + '">' + p.status + '</span></td>' +
       '<td><button class="btn-action" onclick="event.stopPropagation()">' + p.action + '</button></td>' +

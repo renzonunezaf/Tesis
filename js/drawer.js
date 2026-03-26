@@ -32,11 +32,8 @@ EnaraApp.openDrawer = function(patientId) {
     '</div>';
   }).join('');
 
-  /* Build factor tags */
-  var tags = p.factors.map(function(f) {
-    var tagClass = f.type === 'negative' ? 'drawer-tag--negative' : 'drawer-tag--positive';
-    return '<span class="drawer-tag ' + tagClass + '">' + f.text + '</span>';
-  }).join('');
+  /* Build factor tags — REMOVED from table, now only in drawer as SVG tornado */
+  var factorsSvg = EnaraApp._buildFactorsTornado(p.factors);
 
   /* Populate drawer */
   document.getElementById('drawer-title').textContent = 'Why the model is concerned';
@@ -78,7 +75,10 @@ EnaraApp.openDrawer = function(patientId) {
 
     '<div class="drawer-section fade-in" style="animation-delay:.1s">' +
       '<h4 class="drawer-section__title">Risk & Protective Factors</h4>' +
-      '<div class="drawer-tags">' + tags + '</div>' +
+      '<div style="font-size:.68rem;color:var(--color-text-muted);margin-bottom:8px">' +
+        '<span style="color:var(--color-success)">← Protective</span> · ' +
+        '<span style="color:var(--color-danger)">Risk →</span></div>' +
+      factorsSvg +
     '</div>' +
 
     '<div class="drawer-section fade-in" style="animation-delay:.13s">' +
@@ -132,4 +132,83 @@ EnaraApp.initDrawer = function() {
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') EnaraApp.closeDrawer();
   });
+};
+
+/**
+ * Build an SVG tornado / butterfly chart for SHAP factors.
+ * Risk factors (positive value) go RIGHT in red.
+ * Protective factors (negative value) go LEFT in green.
+ * Center axis = neutral baseline.
+ */
+EnaraApp._buildFactorsTornado = function(factors) {
+  /* Sort: largest absolute value first */
+  var sorted = factors.slice().sort(function(a, b) {
+    return Math.abs(b.value) - Math.abs(a.value);
+  });
+
+  var rowH = 28;            /* Height per factor row */
+  var padT = 6;             /* Top padding */
+  var padB = 6;             /* Bottom padding */
+  var W = 460;              /* SVG width */
+  var H = padT + sorted.length * rowH + padB;
+  var midX = W * 0.5;       /* Center axis position */
+  var barZone = midX - 12;  /* Max bar length per side */
+  var maxVal = Math.max.apply(null, sorted.map(function(f) { return Math.abs(f.value); }));
+
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="tornado-svg">';
+
+  /* Center axis */
+  svg += '<line x1="' + midX + '" y1="' + (padT - 2) + '" x2="' + midX + '" y2="' + (H - padB + 2) + '" ' +
+    'stroke="var(--color-border)" stroke-width="1.5"/>';
+
+  sorted.forEach(function(f, i) {
+    var y = padT + i * rowH;
+    var barY = y + 6;
+    var barH2 = 16;
+    var pct = Math.abs(f.value) / maxVal;
+    var barLen = pct * barZone;
+    var isRisk = f.value > 0;
+    var color = isRisk ? 'var(--color-danger)' : 'var(--color-success)';
+    var lightColor = isRisk ? 'rgba(229,62,62,0.12)' : 'rgba(56,161,105,0.12)';
+    var sign = f.value > 0 ? '+' : '';
+
+    /* Alternating row bg for readability */
+    if (i % 2 === 0) {
+      svg += '<rect x="0" y="' + y + '" width="' + W + '" height="' + rowH + '" fill="var(--color-bg)" opacity="0.5"/>';
+    }
+
+    if (isRisk) {
+      /* Risk bar: from center going RIGHT */
+      svg += '<rect x="' + midX + '" y="' + barY + '" width="' + barLen + '" height="' + barH2 + '" ' +
+        'rx="4" fill="' + color + '" opacity="0.75"/>';
+      /* Glow background */
+      svg += '<rect x="' + midX + '" y="' + barY + '" width="' + barLen + '" height="' + barH2 + '" ' +
+        'rx="4" fill="' + lightColor + '"/>';
+
+      /* Label: to the left of center */
+      svg += '<text x="' + (midX - 8) + '" y="' + (barY + 12) + '" text-anchor="end" ' +
+        'font-size="9.5" fill="var(--color-text-secondary)" font-weight="500">' + f.text + '</text>';
+
+      /* Value at bar tip */
+      svg += '<text x="' + (midX + barLen + 5) + '" y="' + (barY + 12) + '" text-anchor="start" ' +
+        'font-size="9" fill="' + color + '" font-weight="700">' + sign + f.value.toFixed(2) + '</text>';
+    } else {
+      /* Protective bar: from center going LEFT */
+      svg += '<rect x="' + (midX - barLen) + '" y="' + barY + '" width="' + barLen + '" height="' + barH2 + '" ' +
+        'rx="4" fill="' + color + '" opacity="0.75"/>';
+      svg += '<rect x="' + (midX - barLen) + '" y="' + barY + '" width="' + barLen + '" height="' + barH2 + '" ' +
+        'rx="4" fill="' + lightColor + '"/>';
+
+      /* Label: to the right of center */
+      svg += '<text x="' + (midX + 8) + '" y="' + (barY + 12) + '" text-anchor="start" ' +
+        'font-size="9.5" fill="var(--color-text-secondary)" font-weight="500">' + f.text + '</text>';
+
+      /* Value at bar tip */
+      svg += '<text x="' + (midX - barLen - 5) + '" y="' + (barY + 12) + '" text-anchor="end" ' +
+        'font-size="9" fill="' + color + '" font-weight="700">' + f.value.toFixed(2) + '</text>';
+    }
+  });
+
+  svg += '</svg>';
+  return svg;
 };
