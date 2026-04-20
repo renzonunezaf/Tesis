@@ -1379,8 +1379,8 @@
 
   <!-- ══════ CSS del módulo v4 (tab Senadores y Diputados) ══════
        Tokens scoped en .v4-scope — no pisa las variables del v3. -->
-  <link rel="stylesheet" href="shared/css/tokens.css?v=4.0.27">
-  <link rel="stylesheet" href="camaras/css/camaras.css?v=4.0.27">
+  <link rel="stylesheet" href="shared/css/tokens.css?v=4.0.28">
+  <link rel="stylesheet" href="camaras/css/camaras.css?v=4.0.28">
 
   <!-- ══════ OVERRIDE INLINE v3.12.12 ══════════════════════════════
        Este bloque va DESPUÉS de los links externos para que pise lo
@@ -1649,7 +1649,7 @@
           <span class="hero-loading-text">Consultando ONPE</span>
         </span>
       </div>
-      <div class="hero-version">v4.0.27</div>
+      <div class="hero-version">v4.0.28</div>
     </div>
     <!-- v4.0.18 — hero-right restituido, ahora solo con el botón Share.
          Actualizar vive en el status-bar del tab Presidenciales. -->
@@ -3640,7 +3640,7 @@ function renderTrackingChart() {
    — Renzo Núñez Berdejo
 ══════════════════════════════════════════════════════════ */
 const WORKER_URL = 'https://onpe-proxy.renzonunez-af.workers.dev';
-const APP_VERSION = 'v4.0.27'; /* Must match Worker's APP_VERSION — auto-reload on mismatch */
+const APP_VERSION = 'v4.0.28'; /* Must match Worker's APP_VERSION — auto-reload on mismatch */
 const ONPE_DIRECT = 'https://resultadoelectoral.onpe.gob.pe/presentacion-backend';
 
 /* Helper: intenta Worker primero, fallback a ONPE directo */
@@ -4778,23 +4778,29 @@ let _snapshotCache = {};     /* ts → full snapshot data */
 let _currentPairIdx = -1;    /* -1 = live view, 0..N = historical pairs */
 
 /* Format ONPE timestamp to Peru time.
-   v4.0.23 — Incluye día/mes (sin año) para evitar ambigüedad cuando
-   comparamos snapshots de días distintos. Antes mostraba solo HH:MM
-   a.m./p.m., lo que era confuso en casos como el último: ONPE estuvo
-   12 horas sin actualizar (de 19/04 19:30 a 20/04 07:30) y el texto
-   "07:30 p. m. → 07:30 a. m." parecía un bug cuando en realidad eran
-   12 horas reales entre dos días. Ahora: "19/04, 07:30 p. m.". */
+   v4.0.28 — Formato explícito día/mes + hora.
+   Separamos toLocaleDateString y toLocaleTimeString en lugar de usar
+   toLocaleString con options mezcladas, porque algunos navegadores
+   ignoraban las options de `day`/`month` cuando `hour12:true` estaba
+   presente, produciendo solo "HH:MM p.m." sin fecha.
+   Con esta separación, garantizamos que el output sea "DD/MM, HH:MM p.m."
+   independientemente del engine de Intl. */
 function fmtPeru(ts) {
   if (!ts) return '';
   try {
-    return new Date(ts).toLocaleString('es-PE', {
+    const d = new Date(ts);
+    const datePart = d.toLocaleDateString('es-PE', {
       timeZone: 'America/Lima',
-      day:    '2-digit',
-      month:  '2-digit',
+      day:   '2-digit',
+      month: '2-digit'
+    });
+    const timePart = d.toLocaleTimeString('es-PE', {
+      timeZone: 'America/Lima',
       hour:   '2-digit',
       minute: '2-digit',
       hour12: true
     });
+    return datePart + ', ' + timePart;
   } catch { return ''; }
 }
 
@@ -5520,13 +5526,13 @@ if (WORKER_URL && !WORKER_URL.includes('TUSUBDOMINIO')) {
          7. camaras.js        → controlador del tab (escucha v4:view-change)
        Todos con `defer` para que carguen en paralelo pero ejecuten en orden.
   ══════════════════════════════════════════════════════════════════════ -->
-  <script src="shared/js/constants.js?v=4.0.27"       defer></script>
-  <script src="shared/js/seat-allocator.js?v=4.0.27"  defer></script>
-  <script src="shared/js/partidos-theme.js?v=4.0.27"  defer></script>
-  <script src="shared/js/progress-bar.js?v=4.0.27"    defer></script>
-  <script src="shared/js/camaras-api.js?v=4.0.27"     defer></script>
-  <script src="camaras/js/hemiciclo.js?v=4.0.27"      defer></script>
-  <script src="camaras/js/camaras.js?v=4.0.27"        defer></script>
+  <script src="shared/js/constants.js?v=4.0.28"       defer></script>
+  <script src="shared/js/seat-allocator.js?v=4.0.28"  defer></script>
+  <script src="shared/js/partidos-theme.js?v=4.0.28"  defer></script>
+  <script src="shared/js/progress-bar.js?v=4.0.28"    defer></script>
+  <script src="shared/js/camaras-api.js?v=4.0.28"     defer></script>
+  <script src="camaras/js/hemiciclo.js?v=4.0.28"      defer></script>
+  <script src="camaras/js/camaras.js?v=4.0.28"        defer></script>
 
   <!-- ═══════════ v4.0.9 · BFCACHE RELOAD FIX ═══════════
        Safari iOS usa bfcache (back-forward cache) de manera muy agresiva:
